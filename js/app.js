@@ -582,7 +582,7 @@ document.addEventListener(
         =========================================
         */
 
-        restaurarDadosRegistro();
+        await restaurarDadosRegistro();
 
     }
 );
@@ -651,7 +651,7 @@ SALVAR DADOS DO REGISTRO
 =========================================
 */
 
-function salvarDadosRegistro() {
+async function salvarDadosRegistro() {
 
     const tipo =
         document.querySelector(
@@ -699,12 +699,48 @@ function salvarDadosRegistro() {
     };
 
 
+    /*
+    =========================================
+    LOCALSTORAGE
+    =========================================
+
+    Mantemos por compatibilidade e como
+    redundância.
+    */
+
     localStorage.setItem(
         "dadosRegistroFotografico",
         JSON.stringify(
             dadosRegistro
         )
     );
+
+
+    /*
+    =========================================
+    INDEXEDDB
+    =========================================
+
+    A classificação também passa a ser
+    persistida no mesmo banco das fotografias.
+    */
+
+    try {
+
+        await salvarClassificacaoLocal(
+            dadosRegistro
+        );
+
+    }
+
+    catch (erro) {
+
+        console.error(
+            "Não foi possível salvar os dados do registro no IndexedDB:",
+            erro
+        );
+
+    }
 
 
     atualizarPreviaNomeArquivo();
@@ -717,64 +753,93 @@ RESTAURAR DADOS DO REGISTRO
 =========================================
 */
 
-function restaurarDadosRegistro() {
+async function restaurarDadosRegistro() {
 
-    let dados =
-        localStorage.getItem(
-            "dadosRegistroFotografico"
-        );
+    let registro = null;
 
 
     /*
-    Compatibilidade com os dados salvos
-    pela versão anterior.
+    =========================================
+    1. TENTA INDEXEDDB
+    =========================================
     */
-
-    if (!dados) {
-
-        dados =
-            localStorage.getItem(
-                "classificacaoRegistro"
-            );
-
-    }
-
-
-    if (!dados) {
-
-        atualizarContadorNomeAcao();
-
-        atualizarValidacaoRegistro();
-
-        atualizarBotoes();
-
-        return;
-
-    }
-
-
-    let registro;
-
 
     try {
 
         registro =
-            JSON.parse(
-                dados
-            );
+            await carregarClassificacaoLocal();
 
     }
+
     catch (erro) {
 
         console.error(
-            "Erro ao recuperar dados do registro:",
+            "Não foi possível recuperar a classificação do IndexedDB:",
             erro
         );
 
+    }
+
+
+    /*
+    =========================================
+    2. FALLBACK PARA LOCALSTORAGE
+    =========================================
+    */
+
+    if (!registro) {
+
+        let dados =
+            localStorage.getItem(
+                "dadosRegistroFotografico"
+            );
+
+
+        if (!dados) {
+
+            dados =
+                localStorage.getItem(
+                    "classificacaoRegistro"
+                );
+
+        }
+
+
+        if (dados) {
+
+            try {
+
+                registro =
+                    JSON.parse(
+                        dados
+                    );
+
+            }
+
+            catch (erro) {
+
+                console.error(
+                    "Erro ao recuperar dados do registro:",
+                    erro
+                );
+
+            }
+
+        }
+
+    }
+
+
+    /*
+    =========================================
+    NENHUM REGISTRO
+    =========================================
+    */
+
+    if (!registro) {
+
         atualizarContadorNomeAcao();
-
         atualizarValidacaoRegistro();
-
         atualizarBotoes();
 
         return;
@@ -941,8 +1006,9 @@ function restaurarDadosRegistro() {
 
 
     /*
-    Remove a chave antiga depois que os
-    dados foram migrados para a nova estrutura.
+    =========================================
+    MIGRA / SINCRONIZA
+    =========================================
     */
 
     localStorage.removeItem(
@@ -950,7 +1016,14 @@ function restaurarDadosRegistro() {
     );
 
 
-    salvarDadosRegistro();
+    await salvarDadosRegistro();
+
+
+    /*
+    =========================================
+    ATUALIZA INTERFACE
+    =========================================
+    */
 
     atualizarContadorNomeAcao();
 
@@ -2626,6 +2699,8 @@ async function reiniciarRegistro() {
         */
 
         await limparFotografiasLocais();
+
+        await excluirClassificacaoLocal();
 
 
         /*

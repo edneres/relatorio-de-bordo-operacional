@@ -147,13 +147,15 @@ async function salvarFotografiaLocal(
 
 
         /*
-        Não salvamos fotografia.url.
+        =========================================
+        MONTA REGISTRO PERSISTENTE
+        =========================================
 
-        URL.createObjectURL() cria apenas uma
-        URL temporária válida para a sessão
-        atual do navegador.
+        A URL "blob:" NÃO é salva porque ela é
+        temporária e deixa de funcionar depois
+        que a página é encerrada.
 
-        O arquivo/Blob original é armazenado
+        O Blob/File original é armazenado
         diretamente no IndexedDB.
         */
 
@@ -166,8 +168,9 @@ async function salvarFotografiaLocal(
                 fotografia.arquivo,
 
             dataHora:
-                fotografia.dataHora
-                    .toISOString(),
+                fotografia.dataHora instanceof Date
+                    ? fotografia.dataHora.toISOString()
+                    : fotografia.dataHora,
 
             latitude:
                 fotografia.latitude,
@@ -185,7 +188,10 @@ async function salvarFotografiaLocal(
                 fotografia.municipio,
 
             uf:
-                fotografia.uf
+                fotografia.uf,
+
+            detalhamento:
+                fotografia.detalhamento || ""
 
         };
 
@@ -208,12 +214,6 @@ async function salvarFotografiaLocal(
                 );
 
 
-            /*
-            put() cria o registro quando ele
-            ainda não existe e atualiza quando
-            o mesmo ID já está armazenado.
-            */
-
             store.put(
                 registro
             );
@@ -232,10 +232,13 @@ async function salvarFotografiaLocal(
             transacao.onerror =
                 function () {
 
+                    const erro =
+                        transacao.error;
+
                     banco.close();
 
                     reject(
-                        transacao.error
+                        erro
                     );
 
                 };
@@ -244,13 +247,16 @@ async function salvarFotografiaLocal(
             transacao.onabort =
                 function () {
 
-                    banco.close();
-
-                    reject(
+                    const erro =
                         transacao.error ||
                         new Error(
                             "Transação de armazenamento cancelada."
-                        )
+                        );
+
+                    banco.close();
+
+                    reject(
+                        erro
                     );
 
                 };
@@ -271,7 +277,6 @@ async function salvarFotografiaLocal(
     }
 
 }
-
 
 /*
 =========================================
@@ -316,62 +321,95 @@ async function carregarFotografiasLocais() {
                         requisicao.result || [];
 
 
-                    /*
-                    ---------------------------------
-                    RECONSTRÓI OS OBJETOS
-                    ---------------------------------
-
-                    Como as URLs criadas com
-                    URL.createObjectURL() deixam de
-                    valer ao encerrar a página,
-                    criamos uma nova URL para cada
-                    arquivo recuperado do IndexedDB.
-                    */
-
                     const resultado =
-                        registros.map(
-                            function (registro) {
+                        registros
+                            .filter(
+                                function (registro) {
 
-                                return {
+                                    /*
+                                    Só tenta restaurar registros
+                                    que realmente possuem a imagem.
+                                    */
 
-                                    id:
-                                        registro.id,
+                                    return (
+                                        registro &&
+                                        registro.arquivo
+                                    );
 
-                                    arquivo:
-                                        registro.arquivo,
+                                }
+                            )
+                            .map(
+                                function (registro) {
 
-                                    url:
-                                        URL.createObjectURL(
-                                            registro.arquivo
-                                        ),
+                                    let url = "";
 
-                                    dataHora:
-                                        new Date(
-                                            registro.dataHora
-                                        ),
+                                    try {
 
-                                    latitude:
-                                        registro.latitude,
+                                        /*
+                                        Cria uma NOVA URL temporária.
 
-                                    longitude:
-                                        registro.longitude,
+                                        Nunca reutilizamos uma URL
+                                        "blob:" de uma sessão anterior.
+                                        */
 
-                                    precisao:
-                                        registro.precisao,
+                                        url =
+                                            URL.createObjectURL(
+                                                registro.arquivo
+                                            );
 
-                                    gpsObtido:
-                                        registro.gpsObtido,
+                                    }
 
-                                    municipio:
-                                        registro.municipio,
+                                    catch (erro) {
 
-                                    uf:
-                                        registro.uf
+                                        console.error(
+                                            "Não foi possível reconstruir a imagem:",
+                                            erro
+                                        );
 
-                                };
+                                    }
 
-                            }
-                        );
+
+                                    return {
+
+                                        id:
+                                            registro.id,
+
+                                        arquivo:
+                                            registro.arquivo,
+
+                                        url:
+                                            url,
+
+                                        dataHora:
+                                            new Date(
+                                                registro.dataHora
+                                            ),
+
+                                        latitude:
+                                            registro.latitude,
+
+                                        longitude:
+                                            registro.longitude,
+
+                                        precisao:
+                                            registro.precisao,
+
+                                        gpsObtido:
+                                            registro.gpsObtido,
+
+                                        municipio:
+                                            registro.municipio || null,
+
+                                        uf:
+                                            registro.uf || null,
+
+                                        detalhamento:
+                                            registro.detalhamento || ""
+
+                                    };
+
+                                }
+                            );
 
 
                     resolve(
@@ -415,7 +453,6 @@ async function carregarFotografiasLocais() {
     }
 
 }
-
 
 /*
 =========================================
@@ -632,11 +669,18 @@ SALVAR CLASSIFICAÇÃO
 =========================================
 */
 
-async function salvarClassificacaoLocal(classificacao) {
+async function salvarClassificacaoLocal(
+    classificacao
+) {
 
-    const db = await abrirBanco();
+    const db =
+        await abrirBanco();
 
-    return new Promise(function (resolve, reject) {
+
+    return new Promise(function (
+        resolve,
+        reject
+    ) {
 
         const transaction =
             db.transaction(
@@ -644,32 +688,82 @@ async function salvarClassificacaoLocal(classificacao) {
                 "readwrite"
             );
 
+
         const store =
             transaction.objectStore(
                 "configuracao"
             );
 
+
         const registro = {
-            chave: "classificacao",
+
+            chave:
+                "classificacao",
+
             categoria:
-                classificacao?.categoria || null,
+                classificacao?.categoria || "",
+
             subcategoria:
-                classificacao?.subcategoria || null,
+                classificacao?.subcategoria || "",
+
             incidente:
-                classificacao?.incidente || null
+                classificacao?.incidente || "",
+
+            nomeAcao:
+                classificacao?.nomeAcao || ""
+
         };
 
-        const request =
-            store.put(registro);
 
-        request.onsuccess = function () {
-            resolve();
-        };
+        store.put(
+            registro
+        );
 
-        request.onerror = function () {
-            reject(request.error);
-        };
+
+        transaction.oncomplete =
+            function () {
+
+                db.close();
+
+                resolve();
+
+            };
+
+
+        transaction.onerror =
+            function () {
+
+                const erro =
+                    transaction.error;
+
+                db.close();
+
+                reject(
+                    erro
+                );
+
+            };
+
+
+        transaction.onabort =
+            function () {
+
+                const erro =
+                    transaction.error ||
+                    new Error(
+                        "Não foi possível salvar a classificação."
+                    );
+
+                db.close();
+
+                reject(
+                    erro
+                );
+
+            };
+
     });
+
 }
 
 
@@ -681,9 +775,14 @@ CARREGAR CLASSIFICAÇÃO
 
 async function carregarClassificacaoLocal() {
 
-    const db = await abrirBanco();
+    const db =
+        await abrirBanco();
 
-    return new Promise(function (resolve, reject) {
+
+    return new Promise(function (
+        resolve,
+        reject
+    ) {
 
         const transaction =
             db.transaction(
@@ -691,43 +790,74 @@ async function carregarClassificacaoLocal() {
                 "readonly"
             );
 
+
         const store =
             transaction.objectStore(
                 "configuracao"
             );
 
+
         const request =
-            store.get("classificacao");
+            store.get(
+                "classificacao"
+            );
 
-        request.onsuccess = function () {
 
-            const registro =
-                request.result;
+        request.onsuccess =
+            function () {
 
-            if (!registro) {
+                const registro =
+                    request.result;
 
-                resolve(null);
-                return;
-            }
 
-            resolve({
-                categoria:
-                    registro.categoria || null,
+                if (!registro) {
 
-                subcategoria:
-                    registro.subcategoria || null,
+                    resolve(null);
 
-                incidente:
-                    registro.incidente || null
-            });
-        };
+                    return;
 
-        request.onerror = function () {
-            reject(request.error);
-        };
+                }
+
+
+                resolve({
+
+                    categoria:
+                        registro.categoria || "",
+
+                    subcategoria:
+                        registro.subcategoria || "",
+
+                    incidente:
+                        registro.incidente || "",
+
+                    nomeAcao:
+                        registro.nomeAcao || ""
+
+                });
+
+            };
+
+
+        request.onerror =
+            function () {
+
+                reject(
+                    request.error
+                );
+
+            };
+
+
+        transaction.oncomplete =
+            function () {
+
+                db.close();
+
+            };
+
     });
-}
 
+}
 
 /*
 =========================================
