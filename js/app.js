@@ -99,80 +99,93 @@ document.addEventListener(
         =========================================
         */
 
-        opcoesTipoServico.forEach(function (opcao) {
+        opcoesTipoServico.forEach(
+            function (opcao) {
 
-            opcao.addEventListener(
-                "change",
-                function () {
+                opcao.addEventListener(
+                    "change",
+                    function () {
 
-                    /*
-                    Esconde tudo antes de mostrar
-                    a categoria selecionada.
-                    */
+                        /*
+                        Esconde tudo antes de mostrar
+                        a categoria selecionada.
+                        */
 
-                    subopcoesExpansao.classList.add(
-                        "oculto"
-                    );
+                        subopcoesExpansao.classList.add(
+                            "oculto"
+                        );
 
-                    subopcoesManutencao.classList.add(
-                        "oculto"
-                    );
+                        subopcoesManutencao.classList.add(
+                            "oculto"
+                        );
 
-                    campoIncidente.classList.add(
-                        "oculto"
-                    );
+                        campoIncidente.classList.add(
+                            "oculto"
+                        );
 
 
-                    /*
-                    Limpa a subopção anterior.
-                    */
+                        /*
+                        Limpa a subopção anterior.
+                        */
 
-                    opcoesSubtipoServico.forEach(
-                        function (subopcao) {
+                        opcoesSubtipoServico.forEach(
+                            function (subopcao) {
 
-                            subopcao.checked = false;
+                                subopcao.checked = false;
+
+                            }
+                        );
+
+                        numeroIncidente.value = "";
+
+
+                        /*
+                        EXPANSÃO
+                        */
+
+                        if (
+                            this.value ===
+                            "expansao"
+                        ) {
+
+                            subopcoesExpansao
+                                .classList
+                                .remove(
+                                    "oculto"
+                                );
 
                         }
-                    );
-
-                    numeroIncidente.value = "";
 
 
-                    /*
-                    EXPANSÃO
-                    */
+                        /*
+                        MANUTENÇÃO
+                        */
 
-                    if (this.value === "expansao") {
+                        if (
+                            this.value ===
+                            "manutencao"
+                        ) {
 
-                        subopcoesExpansao.classList.remove(
-                            "oculto"
-                        );
+                            subopcoesManutencao
+                                .classList
+                                .remove(
+                                    "oculto"
+                                );
 
-                    }
+                        }
 
 
-                    /*
-                    MANUTENÇÃO
-                    */
+                        atualizarValidacaoRegistro();
 
-                    if (this.value === "manutencao") {
+                        atualizarBotoes();
 
-                        subopcoesManutencao.classList.remove(
-                            "oculto"
-                        );
+                        salvarDadosRegistro();
 
                     }
+                );
 
-
-                    atualizarValidacaoRegistro();
-                    atualizarBotoes();
-
-                    salvarDadosRegistro();
-
-                }
-            );
-
-        });
+            }
+        );
 
 
         /*
@@ -205,9 +218,11 @@ document.addEventListener(
                             "tratamento-incidente"
                         ) {
 
-                            campoIncidente.classList.remove(
-                                "oculto"
-                            );
+                            campoIncidente
+                                .classList
+                                .remove(
+                                    "oculto"
+                                );
 
                             setTimeout(
                                 function () {
@@ -222,6 +237,7 @@ document.addEventListener(
 
 
                         atualizarValidacaoRegistro();
+
                         atualizarBotoes();
 
                         salvarDadosRegistro();
@@ -244,6 +260,7 @@ document.addEventListener(
             function () {
 
                 atualizarValidacaoRegistro();
+
                 atualizarBotoes();
 
                 salvarDadosRegistro();
@@ -264,14 +281,17 @@ document.addEventListener(
 
                 /*
                 Garante o limite de 25 caracteres.
-                O maxlength do HTML já faz isso,
-                mas mantemos também no JavaScript.
                 */
 
-                if (this.value.length > 25) {
+                if (
+                    this.value.length > 25
+                ) {
 
                     this.value =
-                        this.value.slice(0, 25);
+                        this.value.slice(
+                            0,
+                            25
+                        );
 
                 }
 
@@ -281,12 +301,13 @@ document.addEventListener(
 
 
                 atualizarValidacaoRegistro();
+
                 atualizarBotoes();
 
                 salvarDadosRegistro();
 
             }
-        );      
+        );
 
 
         /*
@@ -308,7 +329,9 @@ document.addEventListener(
             "click",
             function () {
 
-                if (!classificacaoPreenchida()) {
+                if (
+                    !classificacaoPreenchida()
+                ) {
 
                     alert(
                         "Preencha a classificação do registro antes de tirar a fotografia."
@@ -319,7 +342,9 @@ document.addEventListener(
                 }
 
 
-                if (!nomeAcaoPreenchido()) {
+                if (
+                    !nomeAcaoPreenchido()
+                ) {
 
                     alert(
                         "Preencha o Nome da Ação antes de tirar a fotografia."
@@ -348,7 +373,9 @@ document.addEventListener(
             "click",
             function () {
 
-                if (!classificacaoPreenchida()) {
+                if (
+                    !classificacaoPreenchida()
+                ) {
 
                     alert(
                         "Preencha a classificação do registro antes de tirar a fotografia."
@@ -359,7 +386,9 @@ document.addEventListener(
                 }
 
 
-                if (!nomeAcaoPreenchido()) {
+                if (
+                    !nomeAcaoPreenchido()
+                ) {
 
                     alert(
                         "Preencha o Nome da Ação antes de tirar a fotografia."
@@ -376,6 +405,7 @@ document.addEventListener(
 
             }
         );
+
 
         /*
         -----------------------------------------
@@ -403,7 +433,9 @@ document.addEventListener(
             "click",
             async function () {
 
-                if (!classificacaoPreenchida()) {
+                if (
+                    !classificacaoPreenchida()
+                ) {
 
                     alert(
                         "Preencha a classificação do registro antes de gerar o PDF."
@@ -414,7 +446,9 @@ document.addEventListener(
                 }
 
 
-                if (!nomeAcaoPreenchido()) {
+                if (
+                    !nomeAcaoPreenchido()
+                ) {
 
                     alert(
                         "Preencha o Nome da Ação antes de gerar o PDF."
@@ -431,7 +465,9 @@ document.addEventListener(
                     montarNomeArquivoPDF();
 
 
-                if (!nomeArquivo) {
+                if (
+                    !nomeArquivo
+                ) {
 
                     alert(
                         "Não foi possível definir o nome do arquivo."
@@ -450,7 +486,6 @@ document.addEventListener(
         );
 
 
-
         /*
         =========================================
         MODAL DE INFORMAÇÕES
@@ -463,7 +498,9 @@ document.addEventListener(
 
                 modalInformacoes
                     .classList
-                    .remove("oculto");
+                    .remove(
+                        "oculto"
+                    );
 
                 document.body.style.overflow =
                     "hidden";
@@ -526,7 +563,9 @@ document.addEventListener(
                     event.key === "Escape" &&
                     !modalInformacoes
                         .classList
-                        .contains("oculto")
+                        .contains(
+                            "oculto"
+                        )
                 ) {
 
                     fecharModalInformacoes();
@@ -542,24 +581,36 @@ document.addEventListener(
         RECUPERA AS FOTOGRAFIAS SALVAS
         =========================================
 
-        Esta é a parte responsável por fazer
-        com que as fotografias sobrevivam a:
+        Primeiro recuperamos todas as fotografias
+        armazenadas no IndexedDB.
 
-        - F5;
-        - atualização da página;
-        - fechamento da aba;
-        - fechamento do navegador;
-        - abertura posterior da aplicação.
-
-        Nada é apagado aqui.
+        As URLs "blob:" são reconstruídas pela
+        função carregarFotografiasLocais().
         */
 
-        fotografias =
-            await carregarFotografiasLocais();
+        try {
+
+            fotografias =
+                await carregarFotografiasLocais();
+
+        }
+
+        catch (erro) {
+
+            console.error(
+                "Erro ao recuperar as fotografias:",
+                erro
+            );
+
+            fotografias = [];
+
+        }
 
 
         /*
-        Mantém a ordem original das fotos.
+        =========================================
+        MANTÉM A ORDEM ORIGINAL DAS FOTOS
+        =========================================
         */
 
         fotografias.sort(
@@ -574,18 +625,60 @@ document.addEventListener(
         );
 
 
-        atualizarInterface();
+        /*
+        =========================================
+        RESTAURA OS DADOS DO REGISTRO
+        =========================================
+
+        IMPORTANTE:
+
+        A classificação e o Nome da Ação são
+        restaurados ANTES da montagem final da
+        interface.
+
+        Assim, quando atualizarBotoes() executar,
+        os radios e demais campos já estarão
+        novamente preenchidos.
+        */
+
+        try {
+
+            await restaurarDadosRegistro();
+
+        }
+
+        catch (erro) {
+
+            console.error(
+                "Erro ao restaurar os dados do registro:",
+                erro
+            );
+
+        }
+
 
         /*
         =========================================
-        RESTAURA A CLASSIFICAÇÃO SALVA
+        MONTA A INTERFACE
         =========================================
+
+        Somente chegamos aqui depois de:
+
+        1. recuperar as fotografias;
+        2. reconstruir suas URLs;
+        3. restaurar a classificação;
+        4. restaurar o Nome da Ação.
+
+        Agora podemos renderizar o histórico e
+        validar os botões com o estado correto.
         */
 
-        await restaurarDadosRegistro();
+        atualizarInterface();
 
     }
 );
+
+
 
 /*
 =========================================
