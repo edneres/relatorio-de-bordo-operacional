@@ -59,358 +59,7 @@ const PDF_CONFIG = {
 };
 
 
-
-
-// async function gerarPDF() {
-
-//     if (
-//         !Array.isArray(fotografias) ||
-//         fotografias.length === 0
-//     ) {
-//         return;
-//     }
-
-
-//     if (
-//         !window.jspdf ||
-//         !window.jspdf.jsPDF
-//     ) {
-//         console.error("jsPDF não foi carregado.");
-//         return;
-//     }
-
-
-//     const { jsPDF } = window.jspdf;
-
-
-//     const pdf = new jsPDF({
-//         orientation: PDF_CONFIG.orientacao,
-//         unit: PDF_CONFIG.unidade,
-//         format: PDF_CONFIG.formato,
-//         compress: true
-//     });
-
-
-//     /*
-//     =========================================
-//     DIMENSÕES DA PÁGINA
-//     =========================================
-//     */
-
-//     const larguraPagina =
-//         pdf.internal.pageSize.getWidth();
-
-//     const alturaPagina =
-//         pdf.internal.pageSize.getHeight();
-
-
-//     /*
-//     =========================================
-//     DUAS COLUNAS
-//     =========================================
-//     */
-
-//     const larguraUtil =
-//         larguraPagina
-//         -
-//         PDF_CONFIG.margemX * 2;
-
-
-//     const larguraColuna =
-//         (
-//             larguraUtil
-//             -
-//             PDF_CONFIG.espacoColunas
-//         ) / 2;
-
-
-//     /*
-//     =========================================
-//     DUAS LINHAS
-
-//     Divide a altura útil exatamente em duas
-//     regiões.
-
-//     Isso garante até 4 fotos por página.
-//     =========================================
-//     */
-
-//     const alturaUtil =
-//         alturaPagina
-//         -
-//         PDF_CONFIG.margemSuperior
-//         -
-//         PDF_CONFIG.margemInferior;
-
-
-//     const alturaCelula =
-//         (
-//             alturaUtil
-//             -
-//             PDF_CONFIG.espacoLinhas
-//         ) / 2;
-
-
-//     /*
-//     =========================================
-//     PROCESSA 4 FOTOS POR PÁGINA
-//     =========================================
-//     */
-
-//     for (
-//         let indice = 0;
-//         indice < fotografias.length;
-//         indice += 4
-//     ) {
-
-//         /*
-//         Adiciona nova página depois
-//         das primeiras quatro fotografias.
-//         */
-
-//         if (indice > 0) {
-//             pdf.addPage();
-//         }
-
-
-//         /*
-//         -----------------------------------------
-//         FOTOS DESTA PÁGINA
-//         -----------------------------------------
-//         */
-
-//         const fotosPagina =
-//             fotografias.slice(
-//                 indice,
-//                 indice + 4
-//             );
-
-
-//         for (
-//             let posicao = 0;
-//             posicao < fotosPagina.length;
-//             posicao++
-//         ) {
-
-//             const fotografia =
-//                 fotosPagina[posicao];
-
-
-//             /*
-//             =====================================
-//             POSIÇÃO NA GRADE
-
-//             0 = superior esquerda
-//             1 = superior direita
-//             2 = inferior esquerda
-//             3 = inferior direita
-//             =====================================
-//             */
-
-//             const coluna =
-//                 posicao % 2;
-
-
-//             const linha =
-//                 Math.floor(
-//                     posicao / 2
-//                 );
-
-
-//             /*
-//             -------------------------------------
-//             PREPARA A FOTO
-//             -------------------------------------
-//             */
-
-//             const preparada =
-//                 await prepararFotografiaPDF(
-//                     fotografia,
-//                     larguraColuna
-//                 );
-
-
-//             /*
-//             =====================================
-//             FAZ A FOTO OCUPAR O MAIOR ESPAÇO
-//             POSSÍVEL DENTRO DO RETÂNGULO
-
-//             SEM DISTORCER
-//             SEM CORTAR
-//             =====================================
-//             */
-
-//             let larguraFinal =
-//                 larguraColuna;
-
-
-//             let alturaFinal =
-//                 larguraFinal
-//                 *
-//                 (
-//                     preparada.alturaMM
-//                     /
-//                     preparada.larguraMM
-//                 );
-
-
-//             /*
-//             Se ficou alta demais para a célula,
-//             usamos a altura como limitador.
-//             */
-
-//             if (
-//                 alturaFinal >
-//                 alturaCelula
-//             ) {
-
-//                 alturaFinal =
-//                     alturaCelula;
-
-
-//                 larguraFinal =
-//                     alturaFinal
-//                     *
-//                     (
-//                         preparada.larguraMM
-//                         /
-//                         preparada.alturaMM
-//                     );
-
-//             }
-
-
-//             preparada.larguraMM =
-//                 larguraFinal;
-
-
-//             preparada.alturaMM =
-//                 alturaFinal;
-
-
-//             /*
-//             =====================================
-//             POSIÇÃO DA CÉLULA
-//             =====================================
-//             */
-
-//             const xCelula =
-//                 PDF_CONFIG.margemX
-//                 +
-//                 coluna
-//                 *
-//                 (
-//                     larguraColuna
-//                     +
-//                     PDF_CONFIG.espacoColunas
-//                 );
-
-
-//             const yCelula =
-//                 PDF_CONFIG.margemSuperior
-//                 +
-//                 linha
-//                 *
-//                 (
-//                     alturaCelula
-//                     +
-//                     PDF_CONFIG.espacoLinhas
-//                 );
-
-
-//             /*
-//             =====================================
-//             CENTRALIZA DENTRO DO RETÂNGULO
-//             =====================================
-//             */
-
-//             const xFoto =
-//                 xCelula
-//                 +
-//                 (
-//                     larguraColuna
-//                     -
-//                     larguraFinal
-//                 ) / 2;
-
-
-//             const yFoto =
-//                 yCelula
-//                 +
-//                 (
-//                     alturaCelula
-//                     -
-//                     alturaFinal
-//                 ) / 2;
-
-
-//             /*
-//             -------------------------------------
-//             INSERE FOTO
-//             -------------------------------------
-//             */
-
-//             adicionarFotografiaAoPDF(
-//                 pdf,
-//                 preparada,
-//                 xFoto,
-//                 yFoto
-//             );
-
-//         }
-
-//     }
-
-
-//     /*
-//     =========================================
-//     NOME DO PDF
-
-//     Mantenha aqui o nome que você já escolheu.
-//     =========================================
-//     */
-
-//     const agora =
-//         new Date();
-
-
-//     const nomeArquivo =
-//         "Registro_Fotografico_"
-//         +
-//         String(
-//             agora.getDate()
-//         ).padStart(2, "0")
-//         +
-//         "-"
-//         +
-//         String(
-//             agora.getMonth() + 1
-//         ).padStart(2, "0")
-//         +
-//         "-"
-//         +
-//         agora.getFullYear()
-//         +
-//         "_"
-//         +
-//         String(
-//             agora.getHours()
-//         ).padStart(2, "0")
-//         +
-//         "-"
-//         +
-//         String(
-//             agora.getMinutes()
-//         ).padStart(2, "0")
-//         +
-//         ".pdf";
-
-
-//     pdf.save(nomeArquivo);
-
-// }
-
-async function gerarPDF() {
+async function gerarPDF(nomePersonalizado) {
 
     if (
         !Array.isArray(fotografias) ||
@@ -749,11 +398,100 @@ async function gerarPDF() {
 
             /*
             =========================================
+            DETALHAMENTO
+            =========================================
+            */
+
+            const detalhamento =
+                String(
+                    fotografia.detalhamento || ""
+                ).trim();
+
+
+            let linhasDetalhamento =
+                [];
+
+
+            /*
+            Altura reservada abaixo da fotografia.
+
+            Quando não existe detalhamento,
+            permanece zero e a foto continua
+            utilizando exatamente a área anterior.
+            */
+
+            let alturaDetalhamento =
+                0;
+
+
+            const espacamentoFotoDetalhamento =
+                detalhamento
+                    ? 2
+                    : 0;
+
+
+            if (detalhamento) {
+
+                pdf.setFont(
+                    "helvetica",
+                    "normal"
+                );
+
+                pdf.setFontSize(
+                    8
+                );
+
+
+                /*
+                Quebra automaticamente o texto
+                respeitando a largura da célula.
+                */
+
+                linhasDetalhamento =
+                    pdf.splitTextToSize(
+
+                        detalhamento,
+
+                        larguraFotoDisponivel
+
+                    );
+
+
+                /*
+                Altura aproximada de cada linha
+                para fonte de 8 pt.
+                */
+
+                const alturaLinha =
+                    3.5;
+
+
+                alturaDetalhamento =
+                    linhasDetalhamento.length
+                    *
+                    alturaLinha;
+
+            }
+
+
+            /*
+            =========================================
+            ÁREA DISPONÍVEL PARA A FOTO
+            =========================================
+            */
+
+            const alturaDisponivelParaFoto =
+                alturaFotoDisponivel
+                -
+                alturaDetalhamento
+                -
+                espacamentoFotoDetalhamento;
+
+
+            /*
+            =========================================
             DIMENSÕES DA FOTOGRAFIA
             =========================================
-
-            Primeiro tentamos ocupar toda a
-            largura disponível.
             */
 
             let larguraFinal =
@@ -771,21 +509,19 @@ async function gerarPDF() {
 
 
             /*
-            Se a altura ultrapassar a área
-            disponível, a altura passa a ser
-            o fator limitante.
+            Se a altura ultrapassar a área restante,
+            a altura passa a ser o fator limitante.
 
-            A proporção original é sempre
-            preservada.
+            A proporção original permanece intacta.
             */
 
             if (
                 alturaFinal >
-                alturaFotoDisponivel
+                alturaDisponivelParaFoto
             ) {
 
                 alturaFinal =
-                    alturaFotoDisponivel;
+                    alturaDisponivelParaFoto;
 
 
                 larguraFinal =
@@ -810,7 +546,7 @@ async function gerarPDF() {
 
             /*
             =========================================
-            CENTRALIZA A FOTO NO RETÂNGULO
+            CENTRALIZA A FOTO NA ÁREA SUPERIOR
             =========================================
             */
 
@@ -825,11 +561,24 @@ async function gerarPDF() {
                 / 2;
 
 
+            /*
+            A área considerada para centralização
+            exclui o espaço reservado ao texto.
+            */
+
+            const alturaAreaFoto =
+                alturaCelula
+                -
+                alturaDetalhamento
+                -
+                espacamentoFotoDetalhamento;
+
+
             const yFoto =
                 yCelula
                 +
                 (
-                    alturaCelula
+                    alturaAreaFoto
                     -
                     alturaFinal
                 )
@@ -854,6 +603,76 @@ async function gerarPDF() {
 
             );
 
+
+            /*
+            =========================================
+            INSERE O DETALHAMENTO
+            =========================================
+            */
+
+            if (
+                detalhamento &&
+                linhasDetalhamento.length > 0
+            ) {
+
+                pdf.setFont(
+                    "helvetica",
+                    "normal"
+                );
+
+                pdf.setFontSize(
+                    8
+                );
+
+                pdf.setTextColor(
+                    45,
+                    45,
+                    45
+                );
+
+
+                /*
+                O texto fica imediatamente abaixo
+                da área reservada à fotografia,
+                ainda dentro do mesmo retângulo.
+                */
+
+                const xDetalhamento =
+                    xCelula
+                    +
+                    PDF_CONFIG.paddingCelula;
+
+
+                const yDetalhamento =
+                    yCelula
+                    +
+                    alturaCelula
+                    -
+                    PDF_CONFIG.paddingCelula
+                    -
+                    alturaDetalhamento
+                    +
+                    2.6;
+
+
+                pdf.text(
+
+                    linhasDetalhamento,
+
+                    xDetalhamento,
+
+                    yDetalhamento,
+
+                    {
+                        align: "justify",
+                        maxWidth:
+                            larguraFotoDisponivel
+                    }
+
+                );
+
+            }
+
         }
 
     }
@@ -865,53 +684,63 @@ async function gerarPDF() {
     =========================================
     */
 
-    const agora =
-        new Date();
+    /*
+    =========================================
+    NOME DO ARQUIVO INFORMADO PELO USUÁRIO
+    =========================================
+    */
+
+    let nomeArquivo =
+        String(nomePersonalizado || "").trim();
 
 
-    const nomeArquivo =
-        "Registro_Fotografico_"
-        +
-        String(
-            agora.getDate()
-        ).padStart(2, "0")
-        +
-        "-"
-        +
-        String(
-            agora.getMonth() + 1
-        ).padStart(2, "0")
-        +
-        "-"
-        +
-        agora.getFullYear()
-        +
-        "_"
-        +
-        String(
-            agora.getHours()
-        ).padStart(2, "0")
-        +
-        "-"
-        +
-        String(
-            agora.getMinutes()
-        ).padStart(2, "0")
-        +
-        ".pdf";
+    /*
+    Remove caracteres que não podem ser usados
+    normalmente em nomes de arquivos.
+    */
+    nomeArquivo =
+        nomeArquivo.replace(
+            /[<>:"/\\|?*\x00-\x1F]/g,
+            ""
+        );
+
+
+    /*
+    Evita pontos e espaços no final do nome.
+    */
+    nomeArquivo =
+        nomeArquivo.replace(
+            /[.\s]+$/g,
+            ""
+        );
+
+
+    /*
+    Fallback de segurança.
+    */
+    if (!nomeArquivo) {
+        nomeArquivo = "Registro Fotográfico";
+    }
+
+
+    /*
+    Evita duplicar a extensão caso o usuário
+    digite ".pdf".
+    */
+    if (!nomeArquivo.toLowerCase().endsWith(".pdf")) {
+        nomeArquivo += ".pdf";
+    }
 
 
     /*
     =========================================
-    SALVA O PDF
+    SALVA / BAIXA PDF
     =========================================
     */
 
-    pdf.save(
-        nomeArquivo
-    );
+    pdf.save(nomeArquivo);
 
-}
+    }
 
 
 /*

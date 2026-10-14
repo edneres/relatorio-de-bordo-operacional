@@ -122,6 +122,183 @@
 
 
             <!-- =====================================
+                CLASSIFICAÇÃO DO REGISTRO
+            ====================================== -->
+
+            <section
+                id="classificacao-registro"
+                class="classificacao-registro"
+            >
+                <h2>Classificação do Registro</h2>
+
+                <p class="classificacao-orientacao">
+                    Selecione uma opção:
+                </p>
+
+                <!-- EXPANSÃO -->
+                <div class="grupo-classificacao">
+
+                    <label class="opcao-classificacao opcao-principal">
+                        <input
+                            type="radio"
+                            name="tipo-servico"
+                            value="expansao"
+                        >
+                        <span class="radio-personalizado"></span>
+                        <span>Expansão</span>
+                    </label>
+
+                    <div
+                        id="subopcoes-expansao"
+                        class="subopcoes-classificacao oculto"
+                    >
+
+                        <label class="opcao-classificacao">
+                            <input
+                                type="radio"
+                                name="subtipo-servico"
+                                value="grupo-a"
+                            >
+                            <span class="radio-personalizado"></span>
+                            <span>Grupo A</span>
+                        </label>
+
+                        <label class="opcao-classificacao">
+                            <input
+                                type="radio"
+                                name="subtipo-servico"
+                                value="ligacao-nova"
+                            >
+                            <span class="radio-personalizado"></span>
+                            <span>Ligação Nova</span>
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MANUTENÇÃO -->
+                <div class="grupo-classificacao">
+
+                    <label class="opcao-classificacao opcao-principal">
+                        <input
+                            type="radio"
+                            name="tipo-servico"
+                            value="manutencao"
+                        >
+                        <span class="radio-personalizado"></span>
+                        <span>Manutenção</span>
+                    </label>
+
+                    <div
+                        id="subopcoes-manutencao"
+                        class="subopcoes-classificacao oculto"
+                    >
+
+                        <label class="opcao-classificacao">
+                            <input
+                                type="radio"
+                                name="subtipo-servico"
+                                value="tratamento-incidente"
+                            >
+                            <span class="radio-personalizado"></span>
+
+                            <span>
+                                Tratamento de Pendências de Incidente
+                            </span>
+                        </label>
+
+
+                        <!-- NÚMERO DO INCIDENTE -->
+
+                        <div
+                            id="campo-incidente"
+                            class="campo-incidente oculto"
+                        >
+                            <label for="numero-incidente">
+                                Número do incidente:
+                            </label>
+
+                            <input
+                                id="numero-incidente"
+                                type="text"
+                                inputmode="numeric"
+                                autocomplete="off"
+                                placeholder="Digite o número do incidente"
+                            >
+                        </div>
+
+
+                        <label class="opcao-classificacao">
+                            <input
+                                type="radio"
+                                name="subtipo-servico"
+                                value="melhorias"
+                            >
+                            <span class="radio-personalizado"></span>
+                            <span>Melhorias</span>
+                        </label>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- =====================================
+                NOME DA AÇÃO
+            ====================================== -->
+
+            <section
+                id="secao-nome-acao"
+                class="nome-acao"
+            >
+
+                <div class="nome-acao-cabecalho">
+
+                    <label for="nome-acao">
+                        Nome da Ação
+                        <span class="campo-obrigatorio">*</span>
+                    </label>
+
+                    <span
+                        id="contador-nome-acao"
+                        class="contador-nome-acao"
+                    >
+                        0/25
+                    </span>
+
+                </div>
+
+
+                <input
+                    id="nome-acao"
+                    class="input-nome-acao"
+                    type="text"
+                    maxlength="25"
+                    autocomplete="off"
+                    placeholder="Ex: Obra de RD"
+                >
+
+
+                <div class="previa-nome-arquivo">
+
+                    <span class="previa-nome-arquivo-titulo">
+                        Nome do arquivo:
+                    </span>
+
+                    <span id="previa-nome-arquivo">
+                        Preencha a classificação e o nome da ação
+                    </span>
+
+                </div>
+
+            </section>
+
+
+            <!-- =====================================
                  AÇÕES INICIAIS
             ====================================== -->
 
@@ -283,7 +460,7 @@
 
 
     <!-- =========================================
-         MODAL DE INFORMAÇÕES
+        MODAL DE INFORMAÇÕES
     ========================================== -->
 
     <div
@@ -298,7 +475,7 @@
 
 
             <!-- =====================================
-                 FECHAR
+                FECHAR
             ====================================== -->
 
             <button
@@ -313,7 +490,7 @@
 
 
             <!-- =====================================
-                 TÍTULO DO MODAL
+                TÍTULO DO MODAL
             ====================================== -->
 
             <div class="modal-titulo">
@@ -331,82 +508,122 @@
 
 
             <!-- =====================================
-                 TEXTO DO MODAL
+                TEXTO DO MODAL
             ====================================== -->
 
             <div class="modal-texto">
 
+
+                <!-- =================================
+                    FUNCIONAMENTO
+                ================================== -->
 
                 <h3>
                     Funcionamento
                 </h3>
 
                 <p>
-                    A aplicação permite capturar e organizar
-                    fotografias diretamente pelo dispositivo e gerar,
-                    ao final, um relatório fotográfico em PDF.
+                    A aplicação permite registrar e organizar fotografias
+                    em campo e gerar um relatório fotográfico em PDF.
+                    As informações e imagens permanecem salvas no dispositivo
+                    até que a opção <strong>Reiniciar</strong> seja utilizada.
                 </p>
 
 
+
+                <!-- =================================
+                    UTILIZAÇÃO
+                ================================== -->
 
                 <h3>
                     Utilização
                 </h3>
 
                 <p>
+                    Antes de fotografar, selecione a
+                    <strong>Classificação do Registro</strong>
+                    e informe o <strong>Nome da Ação</strong>.
+                </p>
+
+                <p>
                     Utilize o botão
                     <strong>📸 Tirar Fotografia</strong>
-                    para registrar uma nova imagem e 
-                    adicionar automaticamente
-                    ao histórico.
+                    para adicionar uma imagem ao histórico.
+                    Cada fotografia pode receber um
+                    <strong>detalhamento opcional de até 200 caracteres</strong>.
                 </p>
 
                 <p>
-                    Para remover uma imagem individualmente,
-                    use o botão de exclusão localizado sobre a imagem.
+                    Para excluir uma fotografia individualmente,
+                    utilize o botão de exclusão localizado sobre a imagem.
                 </p>
 
                 <p>
-                    Ao finalizar, utilize
-                    <strong>📄 Gerar PDF</strong>
-                    para criar o relatório contendo as fotografias
-                    registradas.
+                    Após concluir o registro, selecione
+                    <strong>📄 Gerar PDF</strong>.
+                    O nome do arquivo será definido automaticamente
+                    conforme a classificação e o Nome da Ação.
                 </p>
 
                 <p>
-                    Para iniciar um novo relatório e/ou excluir todo 
-                    o histórico atual, utilize o botão <strong>Reiniciar</strong> no
-                    canto superior direito.
-                </p>        
+                    Para iniciar um novo registro e excluir os dados atuais,
+                    utilize <strong>Reiniciar</strong> no canto superior direito.
+                </p>
 
 
+
+                <!-- =================================
+                    LOCALIZAÇÃO
+                ================================== -->
 
                 <h3>
                     Localização
                 </h3>
 
                 <p>
-                    Com a permissão de localização concedida, as coordenadas
-                    geográficas são obtidas no momento de cada registro.
+                    Com a permissão de localização concedida,
+                    as coordenadas geográficas e a precisão do GPS
+                    são obtidas no momento de cada fotografia.
                 </p>
 
                 <p>
-                    No relatório PDF, a imagem poderá ser utilizada
-                    para acessar a respectiva localização no Google Maps ao clicar/tocar sobre ela.
+                    Quando houver conexão com a internet,
+                    a localização poderá ser complementada
+                    automaticamente com o município e a UF.
+                </p>
+
+                <p>
+                    No relatório PDF, clique ou toque sobre a fotografia
+                    para abrir sua respectiva localização no Google Maps.
                 </p>
 
 
 
+                <!-- =================================
+                    ARMAZENAMENTO
+                ================================== -->
+
                 <h3>
-                    Funcionamento Online
+                    Armazenamento
                 </h3>
 
                 <p>
-                    Com acesso à internet, as coordenadas podem ser
-                    complementadas automaticamente com o município e a UF.
+                    As fotografias, a classificação, o Nome da Ação
+                    e os detalhamentos são armazenados localmente
+                    no dispositivo. Recarregar a página ou fechar
+                    a aplicação não exclui o registro em andamento.
+                </p>
+
+                <p>
+                    Os dados são removidos somente após a confirmação
+                    da opção <strong>Reiniciar</strong>.
                 </p>
 
 
+
+                <!-- =================================
+                    FUNCIONAMENTO OFFLINE
+                ================================== -->
 
                 <h3>
                     Funcionamento Offline
@@ -414,19 +631,23 @@
 
                 <p>
                     A ausência de conexão com a internet não impede
-                    o registro fotográfico nem o armazenamento
-                    das informações disponíveis no dispositivo.
+                    o registro das fotografias, o preenchimento das
+                    informações ou o armazenamento dos dados disponíveis
+                    no dispositivo.
                 </p>
 
                 <p>
-                    Recursos que dependem de serviços externos,
-                    como a identificação do município e da UF
-                    e a abertura da localização no Google Maps,
-                    poderão ficar indisponíveis enquanto o dispositivo
-                    estiver sem conexão.
+                    Recursos externos, como a identificação do município
+                    e da UF e a abertura da localização no Google Maps,
+                    poderão ficar indisponíveis até que a conexão
+                    seja restabelecida.
                 </p>
 
 
+
+                <!-- =================================
+                    OBSERVAÇÕES
+                ================================== -->
 
                 <h3>
                     Observações
@@ -439,9 +660,8 @@
                 </p>
 
                 <p>
-                    As imagens permanecem armazenadas localmente
-                    para permitir a continuidade do registro durante
-                    o uso da aplicação.
+                    A indisponibilidade do município ou da UF não impede
+                    o registro da fotografia nem a geração do relatório.
                 </p>
 
 
@@ -450,9 +670,10 @@
 
 
             <!-- =====================================
-                 DESENVOLVEDORA
+                DESENVOLVEDORA
             ====================================== -->
 
+            
             <div class="informacoes-desenvolvedora">
 
                 <a
@@ -485,6 +706,7 @@
                     Equatorial Energia - Teresina, Piauí
                 </p>
 
+
                 <p>
                     2026
                 </p>
@@ -495,7 +717,6 @@
         </div>
 
     </div>
-
 
 
     <!-- =========================================

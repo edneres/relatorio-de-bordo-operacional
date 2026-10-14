@@ -863,3 +863,434 @@ body {
     font: inherit;
     color: inherit;
 }
+
+
+/* =========================================
+   CLASSIFICAÇÃO DO REGISTRO
+========================================= */
+
+.classificacao-registro {
+    margin-bottom: 28px;
+
+    padding: 22px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+
+    background: #ffffff;
+}
+
+.classificacao-registro h2 {
+    margin: 0 0 6px;
+
+    color: #111827;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.classificacao-orientacao {
+    margin: 0 0 18px;
+
+    color: #64748b;
+
+    font-size: 14px;
+}
+
+
+/* GRUPOS */
+
+.grupo-classificacao + .grupo-classificacao {
+    margin-top: 12px;
+}
+
+
+/* OPÇÕES */
+
+.opcao-classificacao {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    width: fit-content;
+
+    min-height: 34px;
+
+    color: #1f2937;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+.opcao-principal {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+
+/* ESCONDE O RADIO ORIGINAL */
+
+.opcao-classificacao input[type="radio"] {
+    position: absolute;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+
+/* BOLINHA VAZADA */
+
+.radio-personalizado {
+    position: relative;
+
+    width: 18px;
+    height: 18px;
+
+    flex-shrink: 0;
+
+    border: 2px solid #64748b;
+    border-radius: 50%;
+
+    background: #ffffff;
+}
+
+
+/* BOLINHA MARCADA */
+
+.opcao-classificacao
+input[type="radio"]:checked
++
+.radio-personalizado {
+    border-color: #111827;
+}
+
+.opcao-classificacao
+input[type="radio"]:checked
++
+.radio-personalizado::after {
+    content: "";
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: #111827;
+
+    transform: translate(-50%, -50%);
+}
+
+
+/* SUBOPÇÕES */
+
+.subopcoes-classificacao {
+    margin-top: 6px;
+    margin-left: 9px;
+
+    padding-left: 18px;
+
+    border-left: 2px solid #e2e8f0;
+}
+
+.subopcoes-classificacao .opcao-classificacao {
+    margin: 5px 0;
+}
+
+
+/* NÚMERO DO INCIDENTE */
+
+.campo-incidente {
+    margin:
+        8px
+        0
+        10px
+        28px;
+
+    max-width: 320px;
+}
+
+.campo-incidente label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: #374151;
+
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.campo-incidente input {
+    width: 100%;
+
+    padding: 11px 13px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+
+    outline: none;
+
+    background: #f1f5f9;
+
+    color: #111827;
+
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.campo-incidente input::placeholder {
+    color: #94a3b8;
+}
+
+.campo-incidente input:focus {
+    border-color: #64748b;
+
+    box-shadow:
+        0 0 0 3px rgba(100, 116, 139, 0.12);
+}
+
+
+/* =========================================
+   BOTÃO BLOQUEADO
+========================================= */
+
+.btn:disabled {
+    opacity: 0.45;
+
+    cursor: not-allowed;
+
+    pointer-events: none;
+}
+
+/* =========================================
+   NOME DA AÇÃO
+========================================= */
+
+.nome-acao {
+    margin-bottom: 28px;
+
+    padding: 22px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+
+    background: #ffffff;
+}
+
+
+/* =========================================
+   CABEÇALHO
+========================================= */
+
+.nome-acao-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 9px;
+}
+
+
+.nome-acao-cabecalho label {
+    color: #111827;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+
+.campo-obrigatorio {
+    color: #dc2626;
+}
+
+
+.contador-nome-acao {
+    flex-shrink: 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+    font-weight: 500;
+}
+
+
+/* =========================================
+   CAMPO
+========================================= */
+
+.input-nome-acao {
+    width: 100%;
+
+    padding: 11px 13px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+
+    outline: none;
+
+    background: #f1f5f9;
+
+    color: #111827;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.input-nome-acao::placeholder {
+    color: #94a3b8;
+}
+
+
+.input-nome-acao:focus {
+    border-color: #64748b;
+
+    box-shadow:
+        0 0 0 3px rgba(100, 116, 139, 0.12);
+}
+
+
+/* =========================================
+   PRÉVIA DO NOME DO ARQUIVO
+========================================= */
+
+.previa-nome-arquivo {
+    margin-top: 12px;
+
+    padding: 10px 12px;
+
+    border-radius: 9px;
+
+    background: #f8fafc;
+
+    color: #64748b;
+
+    font-size: 13px;
+    line-height: 1.45;
+
+    overflow-wrap: anywhere;
+}
+
+
+.previa-nome-arquivo-titulo {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: #374151;
+
+    font-weight: 600;
+}
+
+
+#previa-nome-arquivo {
+    color: #475569;
+}
+
+/* =========================================
+   DETALHAMENTO DAS FOTOGRAFIAS
+========================================= */
+
+.foto-detalhamento {
+    width: 100%;
+
+    margin-top: 14px;
+}
+
+
+/* =========================================
+   CABEÇALHO
+========================================= */
+
+.foto-detalhamento-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 7px;
+}
+
+
+.foto-detalhamento-cabecalho label {
+    color: #111827;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+.foto-detalhamento-contador {
+    flex-shrink: 0;
+
+    color: #64748b;
+
+    font-size: 12px;
+    font-weight: 500;
+}
+
+
+/* =========================================
+   CAMPO
+========================================= */
+
+.foto-detalhamento-campo {
+    display: block;
+
+    width: 100%;
+    min-height: 72px;
+
+    padding: 10px 12px;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+
+    outline: none;
+
+    resize: vertical;
+
+    background: #f1f5f9;
+
+    color: #111827;
+
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.45;
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.foto-detalhamento-campo::placeholder {
+    color: #94a3b8;
+}
+
+
+.foto-detalhamento-campo:focus {
+    border-color: #64748b;
+
+    box-shadow:
+        0 0 0 3px rgba(100, 116, 139, 0.12);
+}

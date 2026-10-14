@@ -5,7 +5,7 @@ CONFIGURAÇÕES DO BANCO LOCAL
 */
 
 const NOME_BANCO = "RegistroFotograficoDB";
-const VERSAO_BANCO = 1;
+const VERSAO_BANCO = 3;
 const NOME_STORE = "fotografias";
 
 
@@ -50,6 +50,12 @@ function abrirBanco() {
                     event.target.result;
 
 
+                /*
+                =========================================
+                STORE DAS FOTOGRAFIAS
+                =========================================
+                */
+
                 if (
                     !banco.objectStoreNames
                         .contains(NOME_STORE)
@@ -59,6 +65,27 @@ function abrirBanco() {
                         NOME_STORE,
                         {
                             keyPath: "id"
+                        }
+                    );
+
+                }
+
+
+                /*
+                =========================================
+                STORE DA CLASSIFICAÇÃO DO REGISTRO
+                =========================================
+                */
+
+                if (
+                    !banco.objectStoreNames
+                        .contains("configuracao")
+                ) {
+
+                    banco.createObjectStore(
+                        "configuracao",
+                        {
+                            keyPath: "chave"
                         }
                     );
 
@@ -596,4 +623,144 @@ async function limparFotografiasLocais() {
 
     }
 
+}
+
+
+/*
+=========================================
+SALVAR CLASSIFICAÇÃO
+=========================================
+*/
+
+async function salvarClassificacaoLocal(classificacao) {
+
+    const db = await abrirBanco();
+
+    return new Promise(function (resolve, reject) {
+
+        const transaction =
+            db.transaction(
+                "configuracao",
+                "readwrite"
+            );
+
+        const store =
+            transaction.objectStore(
+                "configuracao"
+            );
+
+        const registro = {
+            chave: "classificacao",
+            categoria:
+                classificacao?.categoria || null,
+            subcategoria:
+                classificacao?.subcategoria || null,
+            incidente:
+                classificacao?.incidente || null
+        };
+
+        const request =
+            store.put(registro);
+
+        request.onsuccess = function () {
+            resolve();
+        };
+
+        request.onerror = function () {
+            reject(request.error);
+        };
+    });
+}
+
+
+/*
+=========================================
+CARREGAR CLASSIFICAÇÃO
+=========================================
+*/
+
+async function carregarClassificacaoLocal() {
+
+    const db = await abrirBanco();
+
+    return new Promise(function (resolve, reject) {
+
+        const transaction =
+            db.transaction(
+                "configuracao",
+                "readonly"
+            );
+
+        const store =
+            transaction.objectStore(
+                "configuracao"
+            );
+
+        const request =
+            store.get("classificacao");
+
+        request.onsuccess = function () {
+
+            const registro =
+                request.result;
+
+            if (!registro) {
+
+                resolve(null);
+                return;
+            }
+
+            resolve({
+                categoria:
+                    registro.categoria || null,
+
+                subcategoria:
+                    registro.subcategoria || null,
+
+                incidente:
+                    registro.incidente || null
+            });
+        };
+
+        request.onerror = function () {
+            reject(request.error);
+        };
+    });
+}
+
+
+/*
+=========================================
+EXCLUIR CLASSIFICAÇÃO
+=========================================
+*/
+
+async function excluirClassificacaoLocal() {
+
+    const db = await abrirBanco();
+
+    return new Promise(function (resolve, reject) {
+
+        const transaction =
+            db.transaction(
+                "configuracao",
+                "readwrite"
+            );
+
+        const store =
+            transaction.objectStore(
+                "configuracao"
+            );
+
+        const request =
+            store.delete("classificacao");
+
+        request.onsuccess = function () {
+            resolve();
+        };
+
+        request.onerror = function () {
+            reject(request.error);
+        };
+    });
 }

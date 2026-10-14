@@ -52,6 +52,242 @@ document.addEventListener(
                 "modal-informacoes"
             );
 
+        const opcoesTipoServico =
+            document.querySelectorAll(
+                'input[name="tipo-servico"]'
+            );
+
+        const opcoesSubtipoServico =
+            document.querySelectorAll(
+                'input[name="subtipo-servico"]'
+            );
+
+        const subopcoesExpansao =
+            document.getElementById(
+                "subopcoes-expansao"
+            );
+
+        const subopcoesManutencao =
+            document.getElementById(
+                "subopcoes-manutencao"
+            );
+
+        const campoIncidente =
+            document.getElementById(
+                "campo-incidente"
+            );
+
+        const numeroIncidente =
+            document.getElementById(
+                "numero-incidente"
+            );
+
+        const nomeAcao =
+            document.getElementById(
+                "nome-acao"
+            );
+
+        const contadorNomeAcao =
+            document.getElementById(
+                "contador-nome-acao"
+            );
+
+
+        /*
+        =========================================
+        CLASSIFICAÇÃO DO REGISTRO
+        =========================================
+        */
+
+        opcoesTipoServico.forEach(function (opcao) {
+
+            opcao.addEventListener(
+                "change",
+                function () {
+
+                    /*
+                    Esconde tudo antes de mostrar
+                    a categoria selecionada.
+                    */
+
+                    subopcoesExpansao.classList.add(
+                        "oculto"
+                    );
+
+                    subopcoesManutencao.classList.add(
+                        "oculto"
+                    );
+
+                    campoIncidente.classList.add(
+                        "oculto"
+                    );
+
+
+                    /*
+                    Limpa a subopção anterior.
+                    */
+
+                    opcoesSubtipoServico.forEach(
+                        function (subopcao) {
+
+                            subopcao.checked = false;
+
+                        }
+                    );
+
+                    numeroIncidente.value = "";
+
+
+                    /*
+                    EXPANSÃO
+                    */
+
+                    if (this.value === "expansao") {
+
+                        subopcoesExpansao.classList.remove(
+                            "oculto"
+                        );
+
+                    }
+
+
+                    /*
+                    MANUTENÇÃO
+                    */
+
+                    if (this.value === "manutencao") {
+
+                        subopcoesManutencao.classList.remove(
+                            "oculto"
+                        );
+
+                    }
+
+
+                    atualizarValidacaoRegistro();
+                    atualizarBotoes();
+
+                    salvarDadosRegistro();
+
+                }
+            );
+
+        });
+
+
+        /*
+        =========================================
+        SUBOPÇÕES
+        =========================================
+        */
+
+        opcoesSubtipoServico.forEach(
+            function (opcao) {
+
+                opcao.addEventListener(
+                    "change",
+                    function () {
+
+                        campoIncidente.classList.add(
+                            "oculto"
+                        );
+
+                        numeroIncidente.value = "";
+
+
+                        /*
+                        Tratamento de Pendências
+                        de Incidente
+                        */
+
+                        if (
+                            this.value ===
+                            "tratamento-incidente"
+                        ) {
+
+                            campoIncidente.classList.remove(
+                                "oculto"
+                            );
+
+                            setTimeout(
+                                function () {
+
+                                    numeroIncidente.focus();
+
+                                },
+                                100
+                            );
+
+                        }
+
+
+                        atualizarValidacaoRegistro();
+                        atualizarBotoes();
+
+                        salvarDadosRegistro();
+
+                    }
+                );
+
+            }
+        );
+
+
+        /*
+        =========================================
+        NÚMERO DO INCIDENTE
+        =========================================
+        */
+
+        numeroIncidente.addEventListener(
+            "input",
+            function () {
+
+                atualizarValidacaoRegistro();
+                atualizarBotoes();
+
+                salvarDadosRegistro();
+
+            }
+        );
+
+
+        /*
+        =========================================
+        NOME DA AÇÃO
+        =========================================
+        */
+
+        nomeAcao.addEventListener(
+            "input",
+            function () {
+
+                /*
+                Garante o limite de 25 caracteres.
+                O maxlength do HTML já faz isso,
+                mas mantemos também no JavaScript.
+                */
+
+                if (this.value.length > 25) {
+
+                    this.value =
+                        this.value.slice(0, 25);
+
+                }
+
+
+                contadorNomeAcao.textContent =
+                    `${this.value.length}/25`;
+
+
+                atualizarValidacaoRegistro();
+                atualizarBotoes();
+
+                salvarDadosRegistro();
+
+            }
+        );      
+
 
         /*
         -----------------------------------------
@@ -72,6 +308,30 @@ document.addEventListener(
             "click",
             function () {
 
+                if (!classificacaoPreenchida()) {
+
+                    alert(
+                        "Preencha a classificação do registro antes de tirar a fotografia."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!nomeAcaoPreenchido()) {
+
+                    alert(
+                        "Preencha o Nome da Ação antes de tirar a fotografia."
+                    );
+
+                    nomeAcao.focus();
+
+                    return;
+
+                }
+
+
                 abrirCamera();
 
             }
@@ -88,11 +348,34 @@ document.addEventListener(
             "click",
             function () {
 
+                if (!classificacaoPreenchida()) {
+
+                    alert(
+                        "Preencha a classificação do registro antes de tirar a fotografia."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!nomeAcaoPreenchido()) {
+
+                    alert(
+                        "Preencha o Nome da Ação antes de tirar a fotografia."
+                    );
+
+                    nomeAcao.focus();
+
+                    return;
+
+                }
+
+
                 abrirCamera();
 
             }
         );
-
 
         /*
         -----------------------------------------
@@ -111,19 +394,61 @@ document.addEventListener(
 
 
         /*
-        -----------------------------------------
+        =========================================
         GERAR PDF
-        -----------------------------------------
+        =========================================
         */
 
         botaoGerarPDF.addEventListener(
             "click",
             async function () {
 
-                await gerarPDF();
+                if (!classificacaoPreenchida()) {
+
+                    alert(
+                        "Preencha a classificação do registro antes de gerar o PDF."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!nomeAcaoPreenchido()) {
+
+                    alert(
+                        "Preencha o Nome da Ação antes de gerar o PDF."
+                    );
+
+                    nomeAcao.focus();
+
+                    return;
+
+                }
+
+
+                const nomeArquivo =
+                    montarNomeArquivoPDF();
+
+
+                if (!nomeArquivo) {
+
+                    alert(
+                        "Não foi possível definir o nome do arquivo."
+                    );
+
+                    return;
+
+                }
+
+
+                await gerarPDF(
+                    nomeArquivo
+                );
 
             }
         );
+
 
 
         /*
@@ -251,8 +576,713 @@ document.addEventListener(
 
         atualizarInterface();
 
+        /*
+        =========================================
+        RESTAURA A CLASSIFICAÇÃO SALVA
+        =========================================
+        */
+
+        restaurarDadosRegistro();
+
     }
 );
+
+/*
+=========================================
+ATUALIZAR VALIDAÇÃO DO REGISTRO
+=========================================
+*/
+
+function atualizarValidacaoRegistro() {
+
+    const registroValido =
+        classificacaoPreenchida()
+        &&
+        nomeAcaoPreenchido();
+
+
+    const botaoCameraInicial =
+        document.getElementById(
+            "btn-camera"
+        );
+
+    const botaoCameraFinal =
+        document.getElementById(
+            "btn-camera-final"
+        );
+
+    const botaoGerarPDF =
+        document.getElementById(
+            "btn-pdf"
+        );
+
+
+    if (botaoCameraInicial) {
+
+        botaoCameraInicial.disabled =
+            !registroValido;
+
+    }
+
+
+    if (botaoCameraFinal) {
+
+        botaoCameraFinal.disabled =
+            !registroValido;
+
+    }
+
+
+    if (botaoGerarPDF) {
+
+        botaoGerarPDF.disabled =
+            !registroValido;
+
+    }
+
+
+    atualizarPreviaNomeArquivo();
+
+}
+
+/*
+=========================================
+SALVAR DADOS DO REGISTRO
+=========================================
+*/
+
+function salvarDadosRegistro() {
+
+    const tipo =
+        document.querySelector(
+            'input[name="tipo-servico"]:checked'
+        );
+
+    const subtipo =
+        document.querySelector(
+            'input[name="subtipo-servico"]:checked'
+        );
+
+    const numeroIncidente =
+        document.getElementById(
+            "numero-incidente"
+        );
+
+    const nomeAcao =
+        document.getElementById(
+            "nome-acao"
+        );
+
+
+    const dadosRegistro = {
+
+        categoria:
+            tipo
+                ? tipo.value
+                : "",
+
+        subcategoria:
+            subtipo
+                ? subtipo.value
+                : "",
+
+        incidente:
+            numeroIncidente
+                ? numeroIncidente.value
+                : "",
+
+        nomeAcao:
+            nomeAcao
+                ? nomeAcao.value
+                : ""
+
+    };
+
+
+    localStorage.setItem(
+        "dadosRegistroFotografico",
+        JSON.stringify(
+            dadosRegistro
+        )
+    );
+
+
+    atualizarPreviaNomeArquivo();
+
+}
+
+/*
+=========================================
+RESTAURAR DADOS DO REGISTRO
+=========================================
+*/
+
+function restaurarDadosRegistro() {
+
+    let dados =
+        localStorage.getItem(
+            "dadosRegistroFotografico"
+        );
+
+
+    /*
+    Compatibilidade com os dados salvos
+    pela versão anterior.
+    */
+
+    if (!dados) {
+
+        dados =
+            localStorage.getItem(
+                "classificacaoRegistro"
+            );
+
+    }
+
+
+    if (!dados) {
+
+        atualizarContadorNomeAcao();
+
+        atualizarValidacaoRegistro();
+
+        atualizarBotoes();
+
+        return;
+
+    }
+
+
+    let registro;
+
+
+    try {
+
+        registro =
+            JSON.parse(
+                dados
+            );
+
+    }
+    catch (erro) {
+
+        console.error(
+            "Erro ao recuperar dados do registro:",
+            erro
+        );
+
+        atualizarContadorNomeAcao();
+
+        atualizarValidacaoRegistro();
+
+        atualizarBotoes();
+
+        return;
+
+    }
+
+
+    const subopcoesExpansao =
+        document.getElementById(
+            "subopcoes-expansao"
+        );
+
+    const subopcoesManutencao =
+        document.getElementById(
+            "subopcoes-manutencao"
+        );
+
+    const campoIncidente =
+        document.getElementById(
+            "campo-incidente"
+        );
+
+    const numeroIncidente =
+        document.getElementById(
+            "numero-incidente"
+        );
+
+    const nomeAcao =
+        document.getElementById(
+            "nome-acao"
+        );
+
+
+    /*
+    =========================================
+    RESTAURA CATEGORIA
+    =========================================
+    */
+
+    if (registro.categoria) {
+
+        const tipo =
+            document.querySelector(
+                'input[name="tipo-servico"][value="' +
+                registro.categoria +
+                '"]'
+            );
+
+
+        if (tipo) {
+
+            tipo.checked = true;
+
+        }
+
+
+        if (
+            registro.categoria ===
+            "expansao"
+        ) {
+
+            subopcoesExpansao
+                .classList
+                .remove("oculto");
+
+            subopcoesManutencao
+                .classList
+                .add("oculto");
+
+        }
+
+
+        else if (
+            registro.categoria ===
+            "manutencao"
+        ) {
+
+            subopcoesManutencao
+                .classList
+                .remove("oculto");
+
+            subopcoesExpansao
+                .classList
+                .add("oculto");
+
+        }
+
+    }
+
+
+    /*
+    =========================================
+    RESTAURA SUBCATEGORIA
+    =========================================
+    */
+
+    if (registro.subcategoria) {
+
+        const subtipo =
+            document.querySelector(
+                'input[name="subtipo-servico"][value="' +
+                registro.subcategoria +
+                '"]'
+            );
+
+
+        if (subtipo) {
+
+            subtipo.checked = true;
+
+        }
+
+    }
+
+
+    /*
+    =========================================
+    RESTAURA INCIDENTE
+    =========================================
+    */
+
+    if (
+        registro.subcategoria ===
+        "tratamento-incidente"
+    ) {
+
+        campoIncidente
+            .classList
+            .remove("oculto");
+
+        numeroIncidente.value =
+            registro.incidente || "";
+
+    }
+
+    else {
+
+        campoIncidente
+            .classList
+            .add("oculto");
+
+        numeroIncidente.value = "";
+
+    }
+
+
+    /*
+    =========================================
+    RESTAURA NOME DA AÇÃO
+    =========================================
+    */
+
+    if (nomeAcao) {
+
+        nomeAcao.value =
+            String(
+                registro.nomeAcao || ""
+            ).slice(
+                0,
+                25
+            );
+
+    }
+
+
+    /*
+    Remove a chave antiga depois que os
+    dados foram migrados para a nova estrutura.
+    */
+
+    localStorage.removeItem(
+        "classificacaoRegistro"
+    );
+
+
+    salvarDadosRegistro();
+
+    atualizarContadorNomeAcao();
+
+    atualizarValidacaoRegistro();
+
+    atualizarBotoes();
+
+}
+
+function obterClassificacaoRegistro() {
+
+    const tipo =
+        document.querySelector(
+            'input[name="tipo-servico"]:checked'
+        );
+
+    const subtipo =
+        document.querySelector(
+            'input[name="subtipo-servico"]:checked'
+        );
+
+    const campoNumero =
+        document.getElementById(
+            "numero-incidente"
+        );
+
+
+    if (!tipo || !subtipo) {
+
+        return null;
+
+    }
+
+
+    /*
+    =========================================
+    EXPANSÃO
+    =========================================
+    */
+
+    if (tipo.value === "expansao") {
+
+        if (subtipo.value === "grupo-a") {
+
+            return {
+                categoria: "Expansão",
+                subcategoria: "Grupo A",
+                incidente: null
+            };
+        }
+
+
+        if (subtipo.value === "ligacao-nova") {
+
+            return {
+                categoria: "Expansão",
+                subcategoria: "Ligação Nova",
+                incidente: null
+            };
+        }
+    }
+
+
+    /*
+    =========================================
+    MANUTENÇÃO
+    =========================================
+    */
+
+    if (tipo.value === "manutencao") {
+
+        if (subtipo.value === "melhorias") {
+
+            return {
+                categoria: "Manutenção",
+                subcategoria: "Melhorias",
+                incidente: null
+            };
+        }
+
+
+        if (
+            subtipo.value ===
+            "tratamento-incidente"
+        ) {
+
+            const incidente =
+                campoNumero.value.trim();
+
+            if (!incidente) {
+                return null;
+            }
+
+
+            return {
+                categoria: "Manutenção",
+                subcategoria:
+                    "Tratamento de Pendências de Incidente",
+                incidente: incidente
+            };
+        }
+    }
+
+
+    return null;
+}
+
+
+function classificacaoPreenchida() {
+
+    return obterClassificacaoRegistro() !== null;
+
+}
+
+
+/*
+=========================================
+NOME DA AÇÃO PREENCHIDO
+=========================================
+*/
+
+function nomeAcaoPreenchido() {
+
+    const nomeAcao =
+        document.getElementById(
+            "nome-acao"
+        );
+
+
+    if (!nomeAcao) {
+
+        return false;
+
+    }
+
+
+    return (
+        nomeAcao.value.trim().length > 0
+    );
+
+}
+
+
+/*
+=========================================
+ATUALIZAR CONTADOR DO NOME DA AÇÃO
+=========================================
+*/
+
+function atualizarContadorNomeAcao() {
+
+    const nomeAcao =
+        document.getElementById(
+            "nome-acao"
+        );
+
+    const contador =
+        document.getElementById(
+            "contador-nome-acao"
+        );
+
+
+    if (
+        !nomeAcao ||
+        !contador
+    ) {
+
+        return;
+
+    }
+
+
+    contador.textContent =
+        `${nomeAcao.value.length}/25`;
+
+}
+
+
+/*
+=========================================
+MONTAR NOME DO ARQUIVO PDF
+=========================================
+*/
+
+function montarNomeArquivoPDF() {
+
+    const classificacao =
+        obterClassificacaoRegistro();
+
+    const campoNomeAcao =
+        document.getElementById(
+            "nome-acao"
+        );
+
+
+    if (
+        !classificacao ||
+        !campoNomeAcao
+    ) {
+
+        return "";
+
+    }
+
+
+    const nomeAcao =
+        campoNomeAcao.value.trim();
+
+
+    if (!nomeAcao) {
+
+        return "";
+
+    }
+
+
+    let prefixo = "";
+
+
+    /*
+    =========================================
+    EXPANSÃO
+    =========================================
+    */
+
+    if (
+        classificacao.categoria ===
+        "Expansão"
+    ) {
+
+        prefixo =
+            "Expansão - "
+            +
+            classificacao.subcategoria;
+
+    }
+
+
+    /*
+    =========================================
+    MANUTENÇÃO
+    =========================================
+    */
+
+    else if (
+        classificacao.categoria ===
+        "Manutenção"
+    ) {
+
+        if (
+            classificacao.subcategoria ===
+            "Tratamento de Pendências de Incidente"
+        ) {
+
+            prefixo =
+                "Manutenção - Incidente "
+                +
+                classificacao.incidente;
+
+        }
+
+        else if (
+            classificacao.subcategoria ===
+            "Melhorias"
+        ) {
+
+            prefixo =
+                "Manutenção - Melhorias";
+
+        }
+
+    }
+
+
+    if (!prefixo) {
+
+        return "";
+
+    }
+
+
+    return (
+        prefixo
+        +
+        " - "
+        +
+        nomeAcao
+    );
+
+}
+
+
+/*
+=========================================
+ATUALIZAR PRÉVIA DO NOME DO ARQUIVO
+=========================================
+*/
+
+function atualizarPreviaNomeArquivo() {
+
+    const previa =
+        document.getElementById(
+            "previa-nome-arquivo"
+        );
+
+
+    if (!previa) {
+
+        return;
+
+    }
+
+
+    const nomeArquivo =
+        montarNomeArquivoPDF();
+
+
+    if (!nomeArquivo) {
+
+        previa.textContent =
+            "Preencha a classificação e o nome da ação";
+
+        return;
+
+    }
+
+
+    previa.textContent =
+        nomeArquivo + ".pdf";
+
+}
+
 
 
 /*
@@ -354,7 +1384,14 @@ async function adicionarFotografia(
             null,
 
         uf:
-            null
+            null,
+
+        /*
+        Detalhamento opcional da fotografia.
+        */
+
+        detalhamento:
+            ""
 
     };
 
@@ -698,37 +1735,18 @@ function atualizarBotoes() {
 
 
     /*
-    -----------------------------------------
+    =========================================
     EXISTEM FOTOGRAFIAS
-    -----------------------------------------
+    =========================================
     */
 
     if (fotografias.length > 0) {
-
-        /*
-        Esconde a câmera inicial.
-        */
 
         acoesIniciais.classList.add(
             "oculto"
         );
 
-
-        /*
-        Mostra câmera + PDF abaixo
-        da última fotografia.
-        */
-
         acoesFinais.classList.remove(
-            "oculto"
-        );
-
-
-        /*
-        Mostra Reiniciar.
-        */
-
-        botaoReiniciar.classList.remove(
             "oculto"
         );
 
@@ -736,40 +1754,57 @@ function atualizarBotoes() {
 
 
     /*
-    -----------------------------------------
+    =========================================
     NÃO EXISTEM FOTOGRAFIAS
-    -----------------------------------------
+    =========================================
     */
 
     else {
-
-        /*
-        Mostra câmera inicial.
-        */
 
         acoesIniciais.classList.remove(
             "oculto"
         );
 
-
-        /*
-        Esconde botões inferiores.
-        */
-
         acoesFinais.classList.add(
             "oculto"
         );
 
+    }
 
-        /*
-        Esconde Reiniciar.
-        */
+
+    /*
+    =========================================
+    BOTÃO REINICIAR
+    =========================================
+    */
+
+    const possuiDadosFormulario =
+        classificacaoPreenchida()
+        ||
+        nomeAcaoPreenchido();
+
+
+    if (
+        fotografias.length > 0 ||
+        possuiDadosFormulario
+    ) {
+
+        botaoReiniciar.classList.remove(
+            "oculto"
+        );
+
+    }
+
+    else {
 
         botaoReiniciar.classList.add(
             "oculto"
         );
 
     }
+
+
+    atualizarValidacaoRegistro();
 
 }
 
@@ -1161,6 +2196,227 @@ function criarItemFotografia(
 
 
     /*
+    =========================================
+    DETALHAMENTO DA FOTOGRAFIA
+    =========================================
+    */
+
+    const blocoDetalhamento =
+        document.createElement(
+            "div"
+        );
+
+    blocoDetalhamento.className =
+        "foto-detalhamento";
+
+
+    /*
+    Cabeçalho do campo.
+    */
+
+    const cabecalhoDetalhamento =
+        document.createElement(
+            "div"
+        );
+
+    cabecalhoDetalhamento.className =
+        "foto-detalhamento-cabecalho";
+
+
+    const rotuloDetalhamento =
+        document.createElement(
+            "label"
+        );
+
+    rotuloDetalhamento.textContent =
+        "Detalhamento";
+
+    rotuloDetalhamento.setAttribute(
+        "for",
+        `detalhamento-${fotografia.id}`
+    );
+
+
+    const contadorDetalhamento =
+        document.createElement(
+            "span"
+        );
+
+    contadorDetalhamento.className =
+        "foto-detalhamento-contador";
+
+
+    /*
+    Campo de texto.
+    */
+
+    const campoDetalhamento =
+        document.createElement(
+            "textarea"
+        );
+
+    campoDetalhamento.id =
+        `detalhamento-${fotografia.id}`;
+
+    campoDetalhamento.className =
+        "foto-detalhamento-campo";
+
+    campoDetalhamento.maxLength =
+        200;
+
+    campoDetalhamento.rows =
+        3;
+
+    campoDetalhamento.placeholder =
+        "Detalhamento opcional da fotografia";
+
+    campoDetalhamento.value =
+        String(
+            fotografia.detalhamento || ""
+        ).slice(
+            0,
+            200
+        );
+
+
+    contadorDetalhamento.textContent =
+        `${campoDetalhamento.value.length}/200`;
+
+
+    /*
+    Salva automaticamente enquanto
+    o usuário digita.
+    */
+
+    let temporizadorDetalhamento =
+        null;
+
+
+    campoDetalhamento.addEventListener(
+        "input",
+        function () {
+
+            if (this.value.length > 200) {
+
+                this.value =
+                    this.value.slice(
+                        0,
+                        200
+                    );
+
+            }
+
+
+            fotografia.detalhamento =
+                this.value;
+
+
+            contadorDetalhamento.textContent =
+                `${this.value.length}/200`;
+
+
+            /*
+            Pequeno atraso para evitar gravar no
+            IndexedDB a cada tecla pressionada.
+            */
+
+            clearTimeout(
+                temporizadorDetalhamento
+            );
+
+
+            temporizadorDetalhamento =
+                setTimeout(
+                    async function () {
+
+                        try {
+
+                            await atualizarFotografiaLocal(
+                                fotografia
+                            );
+
+                        }
+
+                        catch (erro) {
+
+                            console.error(
+                                "Não foi possível salvar o detalhamento da fotografia:",
+                                erro
+                            );
+
+                        }
+
+                    },
+                    300
+                );
+
+        }
+    );
+
+
+    /*
+    Ao sair do campo, garante que a versão
+    mais recente seja persistida imediatamente.
+    */
+
+    campoDetalhamento.addEventListener(
+        "blur",
+        async function () {
+
+            clearTimeout(
+                temporizadorDetalhamento
+            );
+
+
+            fotografia.detalhamento =
+                this.value;
+
+
+            try {
+
+                await atualizarFotografiaLocal(
+                    fotografia
+                );
+
+            }
+
+            catch (erro) {
+
+                console.error(
+                    "Não foi possível salvar o detalhamento da fotografia:",
+                    erro
+                );
+
+            }
+
+        }
+    );
+
+
+    cabecalhoDetalhamento.appendChild(
+        rotuloDetalhamento
+    );
+
+    cabecalhoDetalhamento.appendChild(
+        contadorDetalhamento
+    );
+
+
+    blocoDetalhamento.appendChild(
+        cabecalhoDetalhamento
+    );
+
+    blocoDetalhamento.appendChild(
+        campoDetalhamento
+    );
+
+
+    informacoes.appendChild(
+        blocoDetalhamento
+    );
+
+
+    /*
     -----------------------------------------
     MONTAGEM FINAL
     -----------------------------------------
@@ -1342,24 +2598,11 @@ REINICIAR REGISTRO
 
 async function reiniciarRegistro() {
 
-    if (fotografias.length === 0) {
-
-        return;
-
-    }
-
-
-    /*
-    -----------------------------------------
-    CONFIRMAÇÃO
-    -----------------------------------------
-    */
-
     const confirmar =
         window.confirm(
             "Deseja reiniciar o registro?\n\n"
             +
-            "Todas as fotografias serão excluídas."
+            "Todas as fotografias e informações do registro serão excluídas."
         );
 
 
@@ -1371,20 +2614,37 @@ async function reiniciarRegistro() {
 
 
     /*
-    -----------------------------------------
-    LIMPA O INDEXEDDB PRIMEIRO
-    -----------------------------------------
-
-    Esta é a única operação que remove
-    todo o relatório armazenado.
-
-    Atualizar ou fechar a página nunca
-    executa esta função.
+    =========================================
+    LIMPA ARMAZENAMENTO
+    =========================================
     */
 
     try {
 
+        /*
+        Remove todas as fotografias.
+        */
+
         await limparFotografiasLocais();
+
+
+        /*
+        Remove todos os dados do formulário.
+        */
+
+        localStorage.removeItem(
+            "dadosRegistroFotografico"
+        );
+
+
+        /*
+        Remove também a chave da versão
+        anterior, caso ainda exista.
+        */
+
+        localStorage.removeItem(
+            "classificacaoRegistro"
+        );
 
     }
 
@@ -1405,9 +2665,9 @@ async function reiniciarRegistro() {
 
 
     /*
-    -----------------------------------------
+    =========================================
     LIBERA URLs TEMPORÁRIAS
-    -----------------------------------------
+    =========================================
     */
 
     fotografias.forEach(
@@ -1422,20 +2682,121 @@ async function reiniciarRegistro() {
 
 
     /*
-    -----------------------------------------
-    LIMPA MEMÓRIA
-    -----------------------------------------
+    =========================================
+    LIMPA FOTOGRAFIAS DA MEMÓRIA
+    =========================================
     */
 
     fotografias = [];
 
 
     /*
-    -----------------------------------------
-    ATUALIZA INTERFACE
-    -----------------------------------------
+    =========================================
+    LIMPA CLASSIFICAÇÃO
+    =========================================
     */
 
+    document.querySelectorAll(
+        'input[name="tipo-servico"]'
+    ).forEach(
+        function (opcao) {
+
+            opcao.checked = false;
+
+        }
+    );
+
+
+    document.querySelectorAll(
+        'input[name="subtipo-servico"]'
+    ).forEach(
+        function (opcao) {
+
+            opcao.checked = false;
+
+        }
+    );
+
+
+    const subopcoesExpansao =
+        document.getElementById(
+            "subopcoes-expansao"
+        );
+
+    const subopcoesManutencao =
+        document.getElementById(
+            "subopcoes-manutencao"
+        );
+
+    const campoIncidente =
+        document.getElementById(
+            "campo-incidente"
+        );
+
+    const numeroIncidente =
+        document.getElementById(
+            "numero-incidente"
+        );
+
+    const nomeAcao =
+        document.getElementById(
+            "nome-acao"
+        );
+
+
+    if (subopcoesExpansao) {
+
+        subopcoesExpansao.classList.add(
+            "oculto"
+        );
+
+    }
+
+
+    if (subopcoesManutencao) {
+
+        subopcoesManutencao.classList.add(
+            "oculto"
+        );
+
+    }
+
+
+    if (campoIncidente) {
+
+        campoIncidente.classList.add(
+            "oculto"
+        );
+
+    }
+
+
+    if (numeroIncidente) {
+
+        numeroIncidente.value = "";
+
+    }
+
+
+    /*
+    =========================================
+    LIMPA NOME DA AÇÃO
+    =========================================
+    */
+
+    if (nomeAcao) {
+
+        nomeAcao.value = "";
+
+    }
+
+
+    atualizarContadorNomeAcao();
+
+    atualizarValidacaoRegistro();
+
     atualizarInterface();
+
+    atualizarBotoes();
 
 }
