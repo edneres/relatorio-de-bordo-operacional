@@ -13,7 +13,7 @@ CONFIGURAÇÃO DO CACHE
 */
 
 const NOME_CACHE =
-    "registro-fotografico-v3.7";
+    "registro-fotografico-v3.9";
 
 
 /*
