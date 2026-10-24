@@ -1894,9 +1894,9 @@ function atualizarBotoes() {
             "acoes-finais"
         );
 
-    const botaoReiniciar =
+    const areaReiniciar =
         document.getElementById(
-            "btn-reiniciar"
+            "area-reiniciar"
         );
 
 
@@ -1940,8 +1940,16 @@ function atualizarBotoes() {
 
     /*
     =========================================
-    BOTÃO REINICIAR
+    ÁREA DO BOTÃO REINICIAR
     =========================================
+
+    A área aparece quando houver qualquer
+    informação preenchida no registro ou
+    pelo menos uma fotografia.
+
+    Dessa forma, o botão fica independente
+    do cabeçalho e não interfere no
+    posicionamento da Fênix, título ou mapa.
     */
 
     const possuiDadosFormulario =
@@ -1955,17 +1963,25 @@ function atualizarBotoes() {
         possuiDadosFormulario
     ) {
 
-        botaoReiniciar.classList.remove(
-            "oculto"
-        );
+        if (areaReiniciar) {
+
+            areaReiniciar.classList.remove(
+                "oculto"
+            );
+
+        }
 
     }
 
     else {
 
-        botaoReiniciar.classList.add(
-            "oculto"
-        );
+        if (areaReiniciar) {
+
+            areaReiniciar.classList.add(
+                "oculto"
+            );
+
+        }
 
     }
 
