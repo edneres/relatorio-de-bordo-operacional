@@ -18,8 +18,58 @@
     <title>Registro Fotográfico</title>
 
     <link
+        rel="icon"
+        type="image/png"
+        sizes="32x32"
+        href="icons/caminhao.png"
+    >
+
+    <link
+        rel="icon"
+        type="image/png"
+        sizes="16x16"
+        href="icons/caminhao.png"
+    >
+
+    <link
+        rel="apple-touch-icon"
+        sizes="180x180"
+        href="icons/caminhao.png"
+    >
+
+    <link
         rel="stylesheet"
         href="css/style.css"
+    >
+
+    <link
+        rel="manifest"
+        href="manifest.json"
+    >
+
+    <meta
+        name="theme-color"
+        content="#ffffff"
+    >
+
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="default"
+    >
+
+    <meta
+        name="apple-mobile-web-app-title"
+        content="RBO Regional Leste"
+    >
+
+    <link
+        rel="apple-touch-icon"
+        href="icons/caminhao.png"
     >
 
 </head>
@@ -39,7 +89,7 @@
             <div class="cabecalho-titulo">
 
                 <!-- <h1>
-                    Relatório de Registro Fotográfico Regional Leste
+                    RELATÓRIO DE BORDO OPERACIONAL Regional Leste
                 </h1> -->
 
                 <div class="titulo-com-logo">
@@ -47,17 +97,22 @@
                     <img
                         src="icons/fenix.png"
                         alt="Fênix"
-                        class="logo-fenix"
+                        class="logo-cabecalho"
                     >
 
                     <h1>
-                        Relatório de Registro Fotográfico
+                        RELATÓRIO DE BORDO OPERACIONAL
 
                         <span class="subtitulo-regional">
-                            Regional Leste - Maranhão
+                            Regional Leste
                         </span>
                     </h1>
-                    
+
+                    <img
+                        src="icons/mapa.png"
+                        alt="Mapa do Maranhão"
+                        class="logo-cabecalho"
+                    >
 
                 </div>
 
@@ -455,7 +510,49 @@
         </section>
 
 
+        <!-- =========================================
+            RODAPÉ / IDENTIFICAÇÃO
+        ========================================== -->
+
+        <footer class="rodape-aplicacao">
+
+            <a
+                href="https://www.linkedin.com/in/mariaediv%C3%A2nia"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="link-desenvolvedora"
+            >
+
+                <span>
+                    Maria Edivânia Neres de Sousa
+                </span>
+
+                <span
+                    class="linkedin-icone"
+                    aria-label="LinkedIn"
+                >
+                    in
+                </span>
+
+            </a>
+
+            <p>
+                Gerência de Serviços Técnicos Comerciais Maranhão
+            </p>
+
+            <p>
+                Equatorial Energia - Teresina, Piauí
+            </p>
+
+            <p>
+                2026
+            </p>
+
+        </footer>
+
     </main>
+
+
 
 
 
@@ -500,7 +597,7 @@
                 </span>
 
                 <h2 id="titulo-informacoes">
-                    Sobre o Relatório de Registro Fotográfico
+                    Sobre o RELATÓRIO DE BORDO OPERACIONAL
                 </h2>
 
             </div>
@@ -731,6 +828,57 @@
     <script src="js/pdf.js"></script>
     <script src="js/app.js"></script>
 
+
+    <script>
+
+        /*
+        =========================================
+        REGISTRO DO SERVICE WORKER
+        =========================================
+        */
+
+        if (
+            "serviceWorker" in navigator
+        ) {
+
+            window.addEventListener(
+                "load",
+                function () {
+
+                    navigator
+                        .serviceWorker
+                        .register(
+                            "./service-worker.js"
+                        )
+
+                        .then(
+                            function (registro) {
+
+                                console.log(
+                                    "Service Worker registrado:",
+                                    registro.scope
+                                );
+
+                            }
+                        )
+
+                        .catch(
+                            function (erro) {
+
+                                console.error(
+                                    "Erro ao registrar Service Worker:",
+                                    erro
+                                );
+
+                            }
+                        );
+
+                }
+            );
+
+        }
+
+    </script>
 
 </body>
 
