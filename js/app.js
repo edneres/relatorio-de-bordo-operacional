@@ -82,6 +82,16 @@ document.addEventListener(
                 "numero-incidente"
             );
 
+        const campoInstalacao =
+            document.getElementById(
+                "campo-instalacao"
+            );
+
+        const numeroInstalacao =
+            document.getElementById(
+                "numero-instalacao"
+            );
+
         const nomeAcao =
             document.getElementById(
                 "nome-acao"
@@ -123,6 +133,10 @@ document.addEventListener(
                             "oculto"
                         );
 
+                        campoInstalacao.classList.add(
+                            "oculto"
+                        );
+
 
                         /*
                         Limpa a subopção anterior.
@@ -137,6 +151,8 @@ document.addEventListener(
                         );
 
                         numeroIncidente.value = "";
+
+                        numeroInstalacao.value = "";
 
 
                         /*
@@ -171,6 +187,33 @@ document.addEventListener(
                                 .remove(
                                     "oculto"
                                 );
+
+                        }
+
+
+                        /*
+                        LEITURISTA
+                        */
+
+                        if (
+                            this.value ===
+                            "leiturista"
+                        ) {
+
+                            campoInstalacao
+                                .classList
+                                .remove(
+                                    "oculto"
+                                );
+
+                            setTimeout(
+                                function () {
+
+                                    numeroInstalacao.focus();
+
+                                },
+                                100
+                            );
 
                         }
 
@@ -256,6 +299,25 @@ document.addEventListener(
         */
 
         numeroIncidente.addEventListener(
+            "input",
+            function () {
+
+                atualizarValidacaoRegistro();
+
+                atualizarBotoes();
+
+                salvarDadosRegistro();
+
+            }
+        );
+
+        /*
+        =========================================
+        NÚMERO DA INSTALAÇÃO
+        =========================================
+        */
+
+        numeroInstalacao.addEventListener(
             "input",
             function () {
 
@@ -761,6 +823,11 @@ async function salvarDadosRegistro() {
             "numero-incidente"
         );
 
+    const numeroInstalacao =
+        document.getElementById(
+            "numero-instalacao"
+        );
+
     const nomeAcao =
         document.getElementById(
             "nome-acao"
@@ -784,6 +851,11 @@ async function salvarDadosRegistro() {
                 ? numeroIncidente.value
                 : "",
 
+        instalacao:
+            numeroInstalacao
+                ? numeroInstalacao.value
+                : "",
+
         nomeAcao:
             nomeAcao
                 ? nomeAcao.value
@@ -796,9 +868,6 @@ async function salvarDadosRegistro() {
     =========================================
     LOCALSTORAGE
     =========================================
-
-    Mantemos por compatibilidade e como
-    redundância.
     */
 
     localStorage.setItem(
@@ -813,9 +882,6 @@ async function salvarDadosRegistro() {
     =========================================
     INDEXEDDB
     =========================================
-
-    A classificação também passa a ser
-    persistida no mesmo banco das fotografias.
     */
 
     try {
@@ -960,6 +1026,16 @@ async function restaurarDadosRegistro() {
             "numero-incidente"
         );
 
+    const campoInstalacao =
+        document.getElementById(
+            "campo-instalacao"
+        );
+
+    const numeroInstalacao =
+        document.getElementById(
+            "numero-instalacao"
+        );
+
     const nomeAcao =
         document.getElementById(
             "nome-acao"
@@ -1002,6 +1078,10 @@ async function restaurarDadosRegistro() {
                 .classList
                 .add("oculto");
 
+            campoInstalacao
+                .classList
+                .add("oculto");
+
         }
 
 
@@ -1017,6 +1097,30 @@ async function restaurarDadosRegistro() {
             subopcoesExpansao
                 .classList
                 .add("oculto");
+
+            campoInstalacao
+                .classList
+                .add("oculto");
+
+        }
+
+
+        else if (
+            registro.categoria ===
+            "leiturista"
+        ) {
+
+            subopcoesExpansao
+                .classList
+                .add("oculto");
+
+            subopcoesManutencao
+                .classList
+                .add("oculto");
+
+            campoInstalacao
+                .classList
+                .remove("oculto");
 
         }
 
@@ -1075,6 +1179,37 @@ async function restaurarDadosRegistro() {
             .add("oculto");
 
         numeroIncidente.value = "";
+
+    }
+
+
+    /*
+    =========================================
+    RESTAURA INSTALAÇÃO
+    =========================================
+    */
+
+    if (
+        registro.categoria ===
+        "leiturista"
+    ) {
+
+        campoInstalacao
+            .classList
+            .remove("oculto");
+
+        numeroInstalacao.value =
+            registro.instalacao || "";
+
+    }
+
+    else {
+
+        campoInstalacao
+            .classList
+            .add("oculto");
+
+        numeroInstalacao.value = "";
 
     }
 
@@ -1143,8 +1278,61 @@ function obterClassificacaoRegistro() {
             "numero-incidente"
         );
 
+    const campoInstalacao =
+        document.getElementById(
+            "numero-instalacao"
+        );
 
-    if (!tipo || !subtipo) {
+
+    if (!tipo) {
+
+        return null;
+
+    }
+
+
+    /*
+    =========================================
+    LEITURISTA
+    =========================================
+    */
+
+    if (tipo.value === "leiturista") {
+
+        const instalacao =
+            campoInstalacao
+                ? campoInstalacao.value.trim()
+                : "";
+
+
+        if (!instalacao) {
+
+            return null;
+
+        }
+
+
+        return {
+
+            categoria: "Leiturista",
+
+            subcategoria: null,
+
+            incidente: null,
+
+            instalacao: instalacao
+
+        };
+
+    }
+
+
+    /*
+    Para Expansão e Manutenção,
+    uma subcategoria é obrigatória.
+    */
+
+    if (!subtipo) {
 
         return null;
 
@@ -1162,21 +1350,39 @@ function obterClassificacaoRegistro() {
         if (subtipo.value === "grupo-a") {
 
             return {
+
                 categoria: "Expansão",
+
                 subcategoria: "Grupo A",
-                incidente: null
+
+                incidente: null,
+
+                instalacao: null
+
             };
+
         }
 
 
-        if (subtipo.value === "ligacao-nova") {
+        if (
+            subtipo.value ===
+            "ligacao-nova"
+        ) {
 
             return {
+
                 categoria: "Expansão",
+
                 subcategoria: "Ligação Nova",
-                incidente: null
+
+                incidente: null,
+
+                instalacao: null
+
             };
+
         }
+
     }
 
 
@@ -1191,10 +1397,17 @@ function obterClassificacaoRegistro() {
         if (subtipo.value === "melhorias") {
 
             return {
+
                 categoria: "Manutenção",
+
                 subcategoria: "Melhorias",
-                incidente: null
+
+                incidente: null,
+
+                instalacao: null
+
             };
+
         }
 
 
@@ -1206,22 +1419,34 @@ function obterClassificacaoRegistro() {
             const incidente =
                 campoNumero.value.trim();
 
+
             if (!incidente) {
+
                 return null;
+
             }
 
 
             return {
+
                 categoria: "Manutenção",
+
                 subcategoria:
                     "Tratamento de Pendências de Incidente",
-                incidente: incidente
+
+                incidente: incidente,
+
+                instalacao: null
+
             };
+
         }
+
     }
 
 
     return null;
+
 }
 
 
@@ -1387,6 +1612,25 @@ function montarNomeArquivoPDF() {
                 "Manutenção - Melhorias";
 
         }
+
+    }
+
+
+    /*
+    =========================================
+    LEITURISTA
+    =========================================
+    */
+
+    else if (
+        classificacao.categoria ===
+        "Leiturista"
+    ) {
+
+        prefixo =
+            "Leiturista - Instalação "
+            +
+            classificacao.instalacao;
 
     }
 
@@ -2922,6 +3166,16 @@ async function reiniciarRegistro() {
             "numero-incidente"
         );
 
+    const campoInstalacao =
+        document.getElementById(
+            "campo-instalacao"
+        );
+
+    const numeroInstalacao =
+        document.getElementById(
+            "numero-instalacao"
+        );
+
     const nomeAcao =
         document.getElementById(
             "nome-acao"
@@ -2958,6 +3212,21 @@ async function reiniciarRegistro() {
     if (numeroIncidente) {
 
         numeroIncidente.value = "";
+
+    }
+
+    if (campoInstalacao) {
+
+        campoInstalacao.classList.add(
+            "oculto"
+        );
+
+    }
+
+
+    if (numeroInstalacao) {
+
+        numeroInstalacao.value = "";
 
     }
 

@@ -1,7 +1,7 @@
 /*
 =========================================
 SERVICE WORKER
-RELATÓRIO DE REGISTRO FOTOGRÁFICO
+RELATÓRIO DE BORDO OPERACIONAL
 =========================================
 */
 
@@ -13,16 +13,12 @@ CONFIGURAÇÃO DO CACHE
 */
 
 const NOME_CACHE =
-    "registro-fotografico-v3.9";
+    "relatorio-bordo-operacional";
 
 
 /*
-    Todos os arquivos necessários para
-    o funcionamento principal da aplicação
-    são armazenados localmente.
-
-    Recursos externos de internet não
-    devem ser adicionados aqui.
+Arquivos essenciais para funcionamento
+offline da aplicação.
 */
 
 const ARQUIVOS_OFFLINE = [
@@ -35,6 +31,8 @@ const ARQUIVOS_OFFLINE = [
     "./icons/fenix.png",
     "./icons/mapa.png",
     "./icons/caminhao.png",
+    "./icons/app-icon-192.png",
+    "./icons/app-icon-512.png",
 
     "./js/storage.js",
     "./js/gps.js",
@@ -47,7 +45,6 @@ const ARQUIVOS_OFFLINE = [
     "./manifest.json"
 
 ];
-
 
 
 /*
@@ -75,20 +72,23 @@ self.addEventListener(
                     }
                 )
 
+                .then(
+                    function () {
+
+                        /*
+                        A nova versão fica pronta
+                        imediatamente.
+                        */
+
+                        return self.skipWaiting();
+
+                    }
+                )
+
         );
-
-
-        /*
-            Ativa a nova versão do Service
-            Worker sem precisar aguardar o
-            fechamento de todas as abas.
-        */
-
-        self.skipWaiting();
 
     }
 );
-
 
 
 /*
@@ -115,8 +115,9 @@ self.addEventListener(
                                 function (nomeCache) {
 
                                     /*
-                                        Remove versões antigas
-                                        do cache da aplicação.
+                                    Remove caches antigos
+                                    pertencentes a versões
+                                    anteriores da aplicação.
                                     */
 
                                     if (
@@ -142,9 +143,8 @@ self.addEventListener(
                     function () {
 
                         /*
-                            Faz o Service Worker
-                            assumir imediatamente
-                            as páginas abertas.
+                        O novo Service Worker assume
+                        imediatamente as páginas.
                         */
 
                         return self.clients.claim();
@@ -158,7 +158,6 @@ self.addEventListener(
 );
 
 
-
 /*
 =========================================
 INTERCEPTAÇÃO DAS REQUISIÇÕES
@@ -170,8 +169,7 @@ self.addEventListener(
     function (event) {
 
         /*
-            Somente requisições GET podem
-            ser armazenadas no Cache Storage.
+        Apenas requisições GET.
         */
 
         if (
@@ -190,17 +188,13 @@ self.addEventListener(
 
 
         /*
-        -----------------------------------------
+        =========================================
         RECURSOS EXTERNOS
-        -----------------------------------------
+        =========================================
 
-        Requisições para outros servidores,
-        como Nominatim/OpenStreetMap,
-        continuam indo diretamente para
-        a internet.
-
-        Se estiver offline, o próprio código
-        da aplicação tratará a indisponibilidade.
+        Serviços externos continuam dependendo
+        da internet e não são armazenados pelo
+        Service Worker.
         */
 
         if (
@@ -214,93 +208,125 @@ self.addEventListener(
 
 
         /*
-        -----------------------------------------
-        ARQUIVOS DA APLICAÇÃO
-        -----------------------------------------
+        =========================================
+        NETWORK FIRST + FALLBACK PARA CACHE
+        =========================================
 
-        Estratégia:
-        CACHE FIRST
+        Com internet:
 
-        1. Procura localmente.
-        2. Se encontrar, usa o cache.
-        3. Se não encontrar, tenta a rede.
-        4. Se conseguir baixar, guarda uma
-           cópia para acessos futuros.
+        1. tenta buscar a versão atual;
+        2. atualiza o cache;
+        3. entrega a versão atual.
+
+        Sem internet:
+
+        1. a rede falha;
+        2. recupera a última versão armazenada;
+        3. o aplicativo continua funcionando.
         */
 
         event.respondWith(
 
-            caches
-                .match(
-                    event.request
-                )
+            fetch(
+                event.request
+            )
 
                 .then(
-                    function (respostaCache) {
+                    function (
+                        respostaRede
+                    ) {
+
+                        /*
+                        Somente respostas válidas
+                        são armazenadas.
+                        */
 
                         if (
-                            respostaCache
+                            respostaRede &&
+                            respostaRede.status === 200 &&
+                            respostaRede.type !== "error"
                         ) {
 
-                            return respostaCache;
+                            const copiaResposta =
+                                respostaRede.clone();
+
+
+                            event.waitUntil(
+
+                                caches
+                                    .open(
+                                        NOME_CACHE
+                                    )
+
+                                    .then(
+                                        function (
+                                            cache
+                                        ) {
+
+                                            return cache.put(
+                                                event.request,
+                                                copiaResposta
+                                            );
+
+                                        }
+                                    )
+
+                            );
 
                         }
 
 
-                        return fetch(
-                            event.request
-                        )
+                        return respostaRede;
+
+                    }
+                )
+
+                .catch(
+                    function () {
+
+                        /*
+                        Sem internet:
+                        utiliza a cópia local.
+                        */
+
+                        return caches
+                            .match(
+                                event.request
+                            )
 
                             .then(
                                 function (
-                                    respostaRede
+                                    respostaCache
                                 ) {
 
-                                    /*
-                                        Não armazenamos respostas
-                                        inválidas.
-                                    */
-
                                     if (
-                                        !respostaRede ||
-                                        respostaRede.status !== 200 ||
-                                        respostaRede.type === "error"
+                                        respostaCache
                                     ) {
 
-                                        return respostaRede;
+                                        return respostaCache;
 
                                     }
 
 
                                     /*
-                                        Clona porque uma Response
-                                        só pode ser consumida uma vez.
+                                    Se for uma navegação e não
+                                    houver correspondência exata,
+                                    tenta abrir o index offline.
                                     */
 
-                                    const copiaResposta =
-                                        respostaRede.clone();
+                                    if (
+                                        event.request.mode ===
+                                        "navigate"
+                                    ) {
 
-
-                                    caches
-                                        .open(
-                                            NOME_CACHE
-                                        )
-
-                                        .then(
-                                            function (
-                                                cache
-                                            ) {
-
-                                                cache.put(
-                                                    event.request,
-                                                    copiaResposta
-                                                );
-
-                                            }
+                                        return caches.match(
+                                            "./index.html"
                                         );
 
+                                    }
 
-                                    return respostaRede;
+
+                                    return Response.error();
 
                                 }
                             );
