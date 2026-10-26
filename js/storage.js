@@ -5,8 +5,10 @@ CONFIGURAÇÕES DO BANCO LOCAL
 */
 
 const NOME_BANCO = "RegistroFotograficoDB";
-const VERSAO_BANCO = 3;
+const VERSAO_BANCO = 4;
+
 const NOME_STORE = "fotografias";
+const NOME_STORE_PDFS = "filaPDF";
 
 
 /*
@@ -86,6 +88,68 @@ function abrirBanco() {
                         "configuracao",
                         {
                             keyPath: "chave"
+                        }
+                    );
+
+                }
+
+
+                /*
+                =========================================
+                STORE DA FILA DE PDFs
+                =========================================
+
+                Esta store é independente das fotografias
+                e da classificação atual.
+
+                Assim, um PDF que estiver aguardando
+                sincronização continuará armazenado mesmo
+                depois que o usuário reiniciar o registro.
+                */
+
+                if (
+                    !banco.objectStoreNames
+                        .contains(NOME_STORE_PDFS)
+                ) {
+
+                    const storePDF =
+                        banco.createObjectStore(
+                            NOME_STORE_PDFS,
+                            {
+                                keyPath: "id"
+                            }
+                        );
+
+
+                    /*
+                    Índice utilizado posteriormente para
+                    localizar PDFs pelo status:
+
+                    PENDENTE
+                    ENVIANDO
+                    SINCRONIZADO
+                    ERRO
+                    */
+
+                    storePDF.createIndex(
+                        "status",
+                        "status",
+                        {
+                            unique: false
+                        }
+                    );
+
+
+                    /*
+                    Permite ordenar/localizar os registros
+                    pela data em que foram gerados.
+                    */
+
+                    storePDF.createIndex(
+                        "dataGeracao",
+                        "dataGeracao",
+                        {
+                            unique: false
                         }
                     );
 
@@ -906,3 +970,659 @@ async function excluirClassificacaoLocal() {
         };
     });
 }
+
+/*
+=========================================
+FILA OFFLINE DE PDFs
+=========================================
+*/
+
+
+/*
+=========================================
+SALVAR PDF NA FILA
+=========================================
+*/
+
+async function salvarPDFPendente(
+    dadosPDF
+) {
+
+    const banco =
+        await abrirBanco();
+
+
+    /*
+    =========================================
+    MONTA REGISTRO
+    =========================================
+    */
+
+    const registro = {
+
+        id:
+            dadosPDF.id,
+
+        nomeArquivo:
+            dadosPDF.nomeArquivo,
+
+        arquivoPDF:
+            dadosPDF.arquivoPDF,
+
+        categoria:
+            dadosPDF.categoria || "",
+
+        subcategoria:
+            dadosPDF.subcategoria || "",
+
+        incidente:
+            dadosPDF.incidente || "",
+
+        instalacao:
+            dadosPDF.instalacao || "",
+
+        localidade:
+            dadosPDF.localidade || "",
+
+        nomeAcao:
+            dadosPDF.nomeAcao || "",
+
+        dataGeracao:
+            dadosPDF.dataGeracao ||
+            new Date().toISOString(),
+
+        status:
+            dadosPDF.status ||
+            "PENDENTE",
+
+        tentativas:
+            dadosPDF.tentativas || 0,
+
+        ultimaTentativa:
+            dadosPDF.ultimaTentativa || null,
+
+        sincronizadoEm:
+            dadosPDF.sincronizadoEm || null,
+
+        erro:
+            dadosPDF.erro || null
+
+    };
+
+
+    return new Promise(function (
+        resolve,
+        reject
+    ) {
+
+        const transacao =
+            banco.transaction(
+                NOME_STORE_PDFS,
+                "readwrite"
+            );
+
+
+        const store =
+            transacao.objectStore(
+                NOME_STORE_PDFS
+            );
+
+
+        store.put(
+            registro
+        );
+
+
+        transacao.oncomplete =
+            function () {
+
+                banco.close();
+
+                resolve(
+                    registro
+                );
+
+            };
+
+
+        transacao.onerror =
+            function () {
+
+                const erro =
+                    transacao.error;
+
+                banco.close();
+
+                reject(
+                    erro
+                );
+
+            };
+
+
+        transacao.onabort =
+            function () {
+
+                const erro =
+                    transacao.error ||
+                    new Error(
+                        "Não foi possível armazenar o PDF."
+                    );
+
+                banco.close();
+
+                reject(
+                    erro
+                );
+
+            };
+
+    });
+
+}
+
+
+/*
+=========================================
+LISTAR TODOS OS PDFs DA FILA
+=========================================
+*/
+
+async function listarPDFsFila() {
+
+    const banco =
+        await abrirBanco();
+
+
+    return new Promise(function (
+        resolve,
+        reject
+    ) {
+
+        const transacao =
+            banco.transaction(
+                NOME_STORE_PDFS,
+                "readonly"
+            );
+
+
+        const store =
+            transacao.objectStore(
+                NOME_STORE_PDFS
+            );
+
+
+        const requisicao =
+            store.getAll();
+
+
+        requisicao.onsuccess =
+            function () {
+
+                const registros =
+                    requisicao.result || [];
+
+
+                /*
+                Ordena do PDF mais antigo
+                para o mais recente.
+                */
+
+                registros.sort(
+                    function (a, b) {
+
+                        return (
+                            new Date(a.dataGeracao) -
+                            new Date(b.dataGeracao)
+                        );
+
+                    }
+                );
+
+
+                resolve(
+                    registros
+                );
+
+            };
+
+
+        requisicao.onerror =
+            function () {
+
+                reject(
+                    requisicao.error
+                );
+
+            };
+
+
+        transacao.oncomplete =
+            function () {
+
+                banco.close();
+
+            };
+
+    });
+
+}
+
+
+/*
+=========================================
+LISTAR PDFs PENDENTES
+=========================================
+*/
+
+async function listarPDFsPendentes() {
+
+    const banco =
+        await abrirBanco();
+
+
+    return new Promise(function (
+        resolve,
+        reject
+    ) {
+
+        const transacao =
+            banco.transaction(
+                NOME_STORE_PDFS,
+                "readonly"
+            );
+
+
+        const store =
+            transacao.objectStore(
+                NOME_STORE_PDFS
+            );
+
+
+        const indice =
+            store.index(
+                "status"
+            );
+
+
+        const requisicao =
+            indice.getAll(
+                "PENDENTE"
+            );
+
+
+        requisicao.onsuccess =
+            function () {
+
+                const registros =
+                    requisicao.result || [];
+
+
+                registros.sort(
+                    function (a, b) {
+
+                        return (
+                            new Date(a.dataGeracao) -
+                            new Date(b.dataGeracao)
+                        );
+
+                    }
+                );
+
+
+                resolve(
+                    registros
+                );
+
+            };
+
+
+        requisicao.onerror =
+            function () {
+
+                reject(
+                    requisicao.error
+                );
+
+            };
+
+
+        transacao.oncomplete =
+            function () {
+
+                banco.close();
+
+            };
+
+    });
+
+}
+
+
+/*
+=========================================
+OBTER PDF PELO ID
+=========================================
+*/
+
+async function obterPDFFila(
+    id
+) {
+
+    const banco =
+        await abrirBanco();
+
+
+    return new Promise(function (
+        resolve,
+        reject
+    ) {
+
+        const transacao =
+            banco.transaction(
+                NOME_STORE_PDFS,
+                "readonly"
+            );
+
+
+        const store =
+            transacao.objectStore(
+                NOME_STORE_PDFS
+            );
+
+
+        const requisicao =
+            store.get(
+                id
+            );
+
+
+        requisicao.onsuccess =
+            function () {
+
+                resolve(
+                    requisicao.result || null
+                );
+
+            };
+
+
+        requisicao.onerror =
+            function () {
+
+                reject(
+                    requisicao.error
+                );
+
+            };
+
+
+        transacao.oncomplete =
+            function () {
+
+                banco.close();
+
+            };
+
+    });
+
+}
+
+
+/*
+=========================================
+ATUALIZAR STATUS DO PDF
+=========================================
+*/
+
+async function atualizarStatusPDF(
+    id,
+    status,
+    dadosExtras = {}
+) {
+
+    const banco =
+        await abrirBanco();
+
+
+    return new Promise(function (
+        resolve,
+        reject
+    ) {
+
+        const transacao =
+            banco.transaction(
+                NOME_STORE_PDFS,
+                "readwrite"
+            );
+
+
+        const store =
+            transacao.objectStore(
+                NOME_STORE_PDFS
+            );
+
+
+        const requisicao =
+            store.get(
+                id
+            );
+
+
+        requisicao.onsuccess =
+            function () {
+
+                const registro =
+                    requisicao.result;
+
+
+                if (!registro) {
+
+                    transacao.abort();
+
+                    return;
+
+                }
+
+
+                registro.status =
+                    status;
+
+
+                /*
+                =========================================
+                DADOS ADICIONAIS
+                =========================================
+                */
+
+                if (
+                    dadosExtras.tentativas !==
+                    undefined
+                ) {
+
+                    registro.tentativas =
+                        dadosExtras.tentativas;
+
+                }
+
+
+                if (
+                    dadosExtras.ultimaTentativa !==
+                    undefined
+                ) {
+
+                    registro.ultimaTentativa =
+                        dadosExtras.ultimaTentativa;
+
+                }
+
+
+                if (
+                    dadosExtras.sincronizadoEm !==
+                    undefined
+                ) {
+
+                    registro.sincronizadoEm =
+                        dadosExtras.sincronizadoEm;
+
+                }
+
+
+                if (
+                    dadosExtras.erro !==
+                    undefined
+                ) {
+
+                    registro.erro =
+                        dadosExtras.erro;
+
+                }
+
+
+                store.put(
+                    registro
+                );
+
+            };
+
+
+        requisicao.onerror =
+            function () {
+
+                reject(
+                    requisicao.error
+                );
+
+            };
+
+
+        transacao.oncomplete =
+            function () {
+
+                banco.close();
+
+                resolve();
+
+            };
+
+
+        transacao.onerror =
+            function () {
+
+                const erro =
+                    transacao.error;
+
+                banco.close();
+
+                reject(
+                    erro
+                );
+
+            };
+
+
+        transacao.onabort =
+            function () {
+
+                const erro =
+                    transacao.error ||
+                    new Error(
+                        "PDF não encontrado na fila."
+                    );
+
+                banco.close();
+
+                reject(
+                    erro
+                );
+
+            };
+
+    });
+
+}
+
+
+/*
+=========================================
+EXCLUIR PDF DA FILA
+=========================================
+*/
+
+async function excluirPDFFila(
+    id
+) {
+
+    const banco =
+        await abrirBanco();
+
+
+    return new Promise(function (
+        resolve,
+        reject
+    ) {
+
+        const transacao =
+            banco.transaction(
+                NOME_STORE_PDFS,
+                "readwrite"
+            );
+
+
+        const store =
+            transacao.objectStore(
+                NOME_STORE_PDFS
+            );
+
+
+        store.delete(
+            id
+        );
+
+
+        transacao.oncomplete =
+            function () {
+
+                banco.close();
+
+                resolve();
+
+            };
+
+
+        transacao.onerror =
+            function () {
+
+                const erro =
+                    transacao.error;
+
+                banco.close();
+
+                reject(
+                    erro
+                );
+
+            };
+
+
+        transacao.onabort =
+            function () {
+
+                const erro =
+                    transacao.error ||
+                    new Error(
+                        "Não foi possível excluir o PDF da fila."
+                    );
+
+                banco.close();
+
+                reject(
+                    erro
+                );
+
+            };
+
+    });
+
+}
+

@@ -59,7 +59,7 @@ const PDF_CONFIG = {
 };
 
 
-async function gerarPDF(nomePersonalizado) {
+async function gerarPDF(nomePersonalizado,dadosRegistro = {}) {
 
     if (
         !Array.isArray(fotografias) ||
@@ -738,9 +738,186 @@ async function gerarPDF(nomePersonalizado) {
     =========================================
     */
 
-    pdf.save(nomeArquivo);
+    /*
+    =========================================
+    GERA O ARQUIVO PDF EM MEMÓRIA
+    =========================================
+    */
+
+    const arquivoPDF =
+        pdf.output(
+            "blob"
+        );
+
+
+    /*
+    =========================================
+    GERA IDENTIFICADOR ÚNICO
+    =========================================
+    */
+
+    let idPDF;
+
+    if (
+        window.crypto &&
+        typeof window.crypto.randomUUID === "function"
+    ) {
+
+        idPDF =
+            window.crypto.randomUUID();
 
     }
+    else {
+
+        idPDF =
+            "pdf-" +
+            Date.now() +
+            "-" +
+            Math.random()
+                .toString(16)
+                .slice(2);
+
+    }
+
+
+    /*
+    =========================================
+    MONTA REGISTRO DA FILA OFFLINE
+    =========================================
+    */
+
+    const registroPDF = {
+
+        id:
+            idPDF,
+
+        nomeArquivo:
+            nomeArquivo,
+
+        arquivoPDF:
+            arquivoPDF,
+
+        categoria:
+            dadosRegistro.categoria || "",
+
+        subcategoria:
+            dadosRegistro.subcategoria || "",
+
+        incidente:
+            dadosRegistro.incidente || "",
+
+        instalacao:
+            dadosRegistro.instalacao || "",
+
+        localidade:
+            dadosRegistro.localidade || "",
+
+        nomeAcao:
+            dadosRegistro.nomeAcao || "",
+
+        dataGeracao:
+            new Date().toISOString(),
+
+        status:
+            "PENDENTE",
+
+        tentativas:
+            0,
+
+        ultimaTentativa:
+            null,
+
+        sincronizadoEm:
+            null,
+
+        erro:
+            null
+
+    };
+
+
+    /*
+    =========================================
+    SALVA NA FILA OFFLINE
+    =========================================
+    */
+
+    let salvoNaFila = false;
+
+    try {
+
+        await salvarPDFPendente(
+            registroPDF
+        );
+
+        salvoNaFila = true;
+
+        console.log(
+            "PDF armazenado na fila offline:",
+            registroPDF.id
+        );
+
+    }
+    catch (erro) {
+
+        console.error(
+            "Erro ao armazenar PDF na fila offline:",
+            erro
+        );
+
+    }
+
+
+    /*
+    =========================================
+    BAIXA O PDF NO DISPOSITIVO
+    =========================================
+    */
+
+    pdf.save(
+        nomeArquivo
+    );
+
+
+/*
+=========================================
+AVISO DE FALHA NO ARMAZENAMENTO
+=========================================
+*/
+
+if (!salvoNaFila) {
+
+    alert(
+        "O PDF foi gerado e baixado normalmente, " +
+        "mas não foi possível armazená-lo na fila " +
+        "de sincronização.\n\n" +
+        "Não reinicie o registro antes de verificar " +
+        "o armazenamento do navegador."
+    );
+
+}
+
+
+/*
+=========================================
+RETORNO
+=========================================
+*/
+
+return {
+
+    id:
+        idPDF,
+
+    nomeArquivo:
+        nomeArquivo,
+
+    salvoNaFila:
+        salvoNaFila
+
+};
+
+}
 
 
 /*

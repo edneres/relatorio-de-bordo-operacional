@@ -649,8 +649,44 @@ document.addEventListener(
                 }
 
 
+                const classificacao =
+                    obterClassificacaoRegistro();
+
+
+                const campoNomeAcao =
+                    document.getElementById(
+                        "nome-acao"
+                    );
+
+
+                const dadosRegistro = {
+
+                    categoria:
+                        classificacao.categoria || "",
+
+                    subcategoria:
+                        classificacao.subcategoria || "",
+
+                    incidente:
+                        classificacao.incidente || "",
+
+                    instalacao:
+                        classificacao.instalacao || "",
+
+                    localidade:
+                        classificacao.localidade || "",
+
+                    nomeAcao:
+                        campoNomeAcao
+                            ? campoNomeAcao.value.trim()
+                            : ""
+
+                };
+
+
                 await gerarPDF(
-                    nomeArquivo
+                    nomeArquivo,
+                    dadosRegistro
                 );
 
             }
