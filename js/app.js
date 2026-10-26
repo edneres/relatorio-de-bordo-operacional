@@ -82,6 +82,11 @@ document.addEventListener(
                 "numero-incidente"
             );
 
+        const subopcoesLeiturista =
+            document.getElementById(
+                "subopcoes-leiturista"
+            );
+
         const campoInstalacao =
             document.getElementById(
                 "campo-instalacao"
@@ -90,6 +95,16 @@ document.addEventListener(
         const numeroInstalacao =
             document.getElementById(
                 "numero-instalacao"
+            );
+
+        const campoLocalidade =
+            document.getElementById(
+                "campo-localidade"
+            );
+
+        const localidade =
+            document.getElementById(
+                "localidade"
             );
 
         const nomeAcao =
@@ -129,11 +144,19 @@ document.addEventListener(
                             "oculto"
                         );
 
+                        subopcoesLeiturista.classList.add(
+                            "oculto"
+                        );
+
                         campoIncidente.classList.add(
                             "oculto"
                         );
 
                         campoInstalacao.classList.add(
+                            "oculto"
+                        );
+
+                        campoLocalidade.classList.add(
                             "oculto"
                         );
 
@@ -150,9 +173,12 @@ document.addEventListener(
                             }
                         );
 
+
                         numeroIncidente.value = "";
 
                         numeroInstalacao.value = "";
+
+                        localidade.value = "";
 
 
                         /*
@@ -200,20 +226,11 @@ document.addEventListener(
                             "leiturista"
                         ) {
 
-                            campoInstalacao
+                            subopcoesLeiturista
                                 .classList
                                 .remove(
                                     "oculto"
                                 );
-
-                            setTimeout(
-                                function () {
-
-                                    numeroInstalacao.focus();
-
-                                },
-                                100
-                            );
 
                         }
 
@@ -244,11 +261,29 @@ document.addEventListener(
                     "change",
                     function () {
 
+                        /*
+                        Esconde e limpa todos os
+                        campos dependentes.
+                        */
+
                         campoIncidente.classList.add(
                             "oculto"
                         );
 
+                        campoInstalacao.classList.add(
+                            "oculto"
+                        );
+
+                        campoLocalidade.classList.add(
+                            "oculto"
+                        );
+
+
                         numeroIncidente.value = "";
+
+                        numeroInstalacao.value = "";
+
+                        localidade.value = "";
 
 
                         /*
@@ -271,6 +306,60 @@ document.addEventListener(
                                 function () {
 
                                     numeroIncidente.focus();
+
+                                },
+                                100
+                            );
+
+                        }
+
+
+                        /*
+                        Coleta de leitura
+                        */
+
+                        if (
+                            this.value ===
+                            "coleta-leitura"
+                        ) {
+
+                            campoInstalacao
+                                .classList
+                                .remove(
+                                    "oculto"
+                                );
+
+                            setTimeout(
+                                function () {
+
+                                    numeroInstalacao.focus();
+
+                                },
+                                100
+                            );
+
+                        }
+
+
+                        /*
+                        Triagem
+                        */
+
+                        if (
+                            this.value ===
+                            "triagem"
+                        ) {
+
+                            campoLocalidade
+                                .classList
+                                .remove(
+                                    "oculto"
+                                );
+
+                            setTimeout(
+                                function () {
+
+                                    localidade.focus();
 
                                 },
                                 100
@@ -318,6 +407,26 @@ document.addEventListener(
         */
 
         numeroInstalacao.addEventListener(
+            "input",
+            function () {
+
+                atualizarValidacaoRegistro();
+
+                atualizarBotoes();
+
+                salvarDadosRegistro();
+
+            }
+        );
+
+        
+        /*
+        =========================================
+        LOCALIDADE
+        =========================================
+        */
+
+        localidade.addEventListener(
             "input",
             function () {
 
@@ -828,6 +937,11 @@ async function salvarDadosRegistro() {
             "numero-instalacao"
         );
 
+    const localidade =
+        document.getElementById(
+            "localidade"
+        );
+
     const nomeAcao =
         document.getElementById(
             "nome-acao"
@@ -854,6 +968,11 @@ async function salvarDadosRegistro() {
         instalacao:
             numeroInstalacao
                 ? numeroInstalacao.value
+                : "",
+
+        localidade:
+            localidade
+                ? localidade.value
                 : "",
 
         nomeAcao:
@@ -1016,6 +1135,11 @@ async function restaurarDadosRegistro() {
             "subopcoes-manutencao"
         );
 
+    const subopcoesLeiturista =
+        document.getElementById(
+            "subopcoes-leiturista"
+        );
+
     const campoIncidente =
         document.getElementById(
             "campo-incidente"
@@ -1034,6 +1158,16 @@ async function restaurarDadosRegistro() {
     const numeroInstalacao =
         document.getElementById(
             "numero-instalacao"
+        );
+
+    const campoLocalidade =
+        document.getElementById(
+            "campo-localidade"
+        );
+
+    const localidade =
+        document.getElementById(
+            "localidade"
         );
 
     const nomeAcao =
@@ -1078,7 +1212,7 @@ async function restaurarDadosRegistro() {
                 .classList
                 .add("oculto");
 
-            campoInstalacao
+            subopcoesLeiturista
                 .classList
                 .add("oculto");
 
@@ -1098,7 +1232,7 @@ async function restaurarDadosRegistro() {
                 .classList
                 .add("oculto");
 
-            campoInstalacao
+            subopcoesLeiturista
                 .classList
                 .add("oculto");
 
@@ -1110,6 +1244,10 @@ async function restaurarDadosRegistro() {
             "leiturista"
         ) {
 
+            subopcoesLeiturista
+                .classList
+                .remove("oculto");
+
             subopcoesExpansao
                 .classList
                 .add("oculto");
@@ -1117,10 +1255,6 @@ async function restaurarDadosRegistro() {
             subopcoesManutencao
                 .classList
                 .add("oculto");
-
-            campoInstalacao
-                .classList
-                .remove("oculto");
 
         }
 
@@ -1191,7 +1325,10 @@ async function restaurarDadosRegistro() {
 
     if (
         registro.categoria ===
-        "leiturista"
+            "leiturista"
+        &&
+        registro.subcategoria ===
+            "coleta-leitura"
     ) {
 
         campoInstalacao
@@ -1210,6 +1347,40 @@ async function restaurarDadosRegistro() {
             .add("oculto");
 
         numeroInstalacao.value = "";
+
+    }
+
+
+    /*
+    =========================================
+    RESTAURA LOCALIDADE
+    =========================================
+    */
+
+    if (
+        registro.categoria ===
+            "leiturista"
+        &&
+        registro.subcategoria ===
+            "triagem"
+    ) {
+
+        campoLocalidade
+            .classList
+            .remove("oculto");
+
+        localidade.value =
+            registro.localidade || "";
+
+    }
+
+    else {
+
+        campoLocalidade
+            .classList
+            .add("oculto");
+
+        localidade.value = "";
 
     }
 
@@ -1261,6 +1432,8 @@ async function restaurarDadosRegistro() {
 
 }
 
+
+
 function obterClassificacaoRegistro() {
 
     const tipo =
@@ -1283,8 +1456,25 @@ function obterClassificacaoRegistro() {
             "numero-instalacao"
         );
 
+    const campoLocalidade =
+        document.getElementById(
+            "localidade"
+        );
+
 
     if (!tipo) {
+
+        return null;
+
+    }
+
+
+    /*
+    Para todas as categorias atuais,
+    uma subcategoria é obrigatória.
+    */
+
+    if (!subtipo) {
 
         return null;
 
@@ -1299,40 +1489,85 @@ function obterClassificacaoRegistro() {
 
     if (tipo.value === "leiturista") {
 
-        const instalacao =
-            campoInstalacao
-                ? campoInstalacao.value.trim()
-                : "";
+        /*
+        COLETA DE LEITURA
+        */
+
+        if (
+            subtipo.value ===
+            "coleta-leitura"
+        ) {
+
+            const instalacao =
+                campoInstalacao
+                    ? campoInstalacao.value.trim()
+                    : "";
 
 
-        if (!instalacao) {
+            if (!instalacao) {
 
-            return null;
+                return null;
+
+            }
+
+
+            return {
+
+                categoria: "Leiturista",
+
+                subcategoria:
+                    "Coleta de leitura",
+
+                incidente: null,
+
+                instalacao: instalacao,
+
+                localidade: null
+
+            };
 
         }
 
 
-        return {
+        /*
+        TRIAGEM
+        */
 
-            categoria: "Leiturista",
+        if (
+            subtipo.value ===
+            "triagem"
+        ) {
 
-            subcategoria: null,
-
-            incidente: null,
-
-            instalacao: instalacao
-
-        };
-
-    }
+            const localidade =
+                campoLocalidade
+                    ? campoLocalidade.value.trim()
+                    : "";
 
 
-    /*
-    Para Expansão e Manutenção,
-    uma subcategoria é obrigatória.
-    */
+            if (!localidade) {
 
-    if (!subtipo) {
+                return null;
+
+            }
+
+
+            return {
+
+                categoria: "Leiturista",
+
+                subcategoria:
+                    "Triagem",
+
+                incidente: null,
+
+                instalacao: null,
+
+                localidade: localidade
+
+            };
+
+        }
+
 
         return null;
 
@@ -1357,7 +1592,9 @@ function obterClassificacaoRegistro() {
 
                 incidente: null,
 
-                instalacao: null
+                instalacao: null,
+
+                localidade: null
 
             };
 
@@ -1377,7 +1614,9 @@ function obterClassificacaoRegistro() {
 
                 incidente: null,
 
-                instalacao: null
+                instalacao: null,
+
+                localidade: null
 
             };
 
@@ -1404,7 +1643,9 @@ function obterClassificacaoRegistro() {
 
                 incidente: null,
 
-                instalacao: null
+                instalacao: null,
+
+                localidade: null
 
             };
 
@@ -1436,7 +1677,9 @@ function obterClassificacaoRegistro() {
 
                 incidente: incidente,
 
-                instalacao: null
+                instalacao: null,
+
+                localidade: null
 
             };
 
@@ -1627,10 +1870,29 @@ function montarNomeArquivoPDF() {
         "Leiturista"
     ) {
 
-        prefixo =
-            "Leiturista - Instalação "
-            +
-            classificacao.instalacao;
+        if (
+            classificacao.subcategoria ===
+            "Coleta de leitura"
+        ) {
+
+            prefixo =
+                "Leiturista - Coleta de leitura - Instalação "
+                +
+                classificacao.instalacao;
+
+        }
+
+        else if (
+            classificacao.subcategoria ===
+            "Triagem"
+        ) {
+
+            prefixo =
+                "Leiturista - Triagem - "
+                +
+                classificacao.localidade;
+
+        }
 
     }
 
@@ -3047,28 +3309,15 @@ async function reiniciarRegistro() {
 
     try {
 
-        /*
-        Remove todas as fotografias.
-        */
-
         await limparFotografiasLocais();
 
         await excluirClassificacaoLocal();
 
 
-        /*
-        Remove todos os dados do formulário.
-        */
-
         localStorage.removeItem(
             "dadosRegistroFotografico"
         );
 
-
-        /*
-        Remove também a chave da versão
-        anterior, caso ainda exista.
-        */
 
         localStorage.removeItem(
             "classificacaoRegistro"
@@ -3156,6 +3405,11 @@ async function reiniciarRegistro() {
             "subopcoes-manutencao"
         );
 
+    const subopcoesLeiturista =
+        document.getElementById(
+            "subopcoes-leiturista"
+        );
+
     const campoIncidente =
         document.getElementById(
             "campo-incidente"
@@ -3174,6 +3428,16 @@ async function reiniciarRegistro() {
     const numeroInstalacao =
         document.getElementById(
             "numero-instalacao"
+        );
+
+    const campoLocalidade =
+        document.getElementById(
+            "campo-localidade"
+        );
+
+    const localidade =
+        document.getElementById(
+            "localidade"
         );
 
     const nomeAcao =
@@ -3200,6 +3464,15 @@ async function reiniciarRegistro() {
     }
 
 
+    if (subopcoesLeiturista) {
+
+        subopcoesLeiturista.classList.add(
+            "oculto"
+        );
+
+    }
+
+
     if (campoIncidente) {
 
         campoIncidente.classList.add(
@@ -3215,6 +3488,7 @@ async function reiniciarRegistro() {
 
     }
 
+
     if (campoInstalacao) {
 
         campoInstalacao.classList.add(
@@ -3227,6 +3501,22 @@ async function reiniciarRegistro() {
     if (numeroInstalacao) {
 
         numeroInstalacao.value = "";
+
+    }
+
+
+    if (campoLocalidade) {
+
+        campoLocalidade.classList.add(
+            "oculto"
+        );
+
+    }
+
+
+    if (localidade) {
+
+        localidade.value = "";
 
     }
 

@@ -49,26 +49,13 @@
     <link
         rel="icon"
         type="image/png"
-        sizes="32x32"
-        href="icons/caminhao.png"
-    >
-
-    <link
-        rel="icon"
-        type="image/png"
-        sizes="16x16"
-        href="icons/caminhao.png"
+        href="icons/app-icon-192.png"
     >
 
     <link
         rel="apple-touch-icon"
         sizes="180x180"
-        href="icons/caminhao.png"
-    >
-
-    <link
-        rel="stylesheet"
-        href="css/style.css"
+        href="icons/app-icon-192.png"
     >
 
     <link
@@ -76,9 +63,9 @@
         href="manifest.json"
     >
 
-    <meta
-        name="theme-color"
-        content="#ffffff"
+    <link
+        rel="stylesheet"
+        href="css/style.css"
     >
 
     <meta
@@ -96,10 +83,6 @@
         content="RBO Regional Leste"
     >
 
-    <link
-        rel="apple-touch-icon"
-        href="icons/caminhao.png"
-    >
 
 </head>
 
@@ -350,26 +333,80 @@
                         <span>Leiturista</span>
                     </label>
 
-                    <!-- NÚMERO DA INSTALAÇÃO -->
 
                     <div
-                        id="campo-instalacao"
-                        class="campo-incidente oculto"
+                        id="subopcoes-leiturista"
+                        class="subopcoes-classificacao oculto"
                     >
-                        <label for="numero-instalacao">
-                            Número da instalação:
+
+                        <!-- COLETA DE LEITURA -->
+
+                        <label class="opcao-classificacao">
+                            <input
+                                type="radio"
+                                name="subtipo-servico"
+                                value="coleta-leitura"
+                            >
+                            <span class="radio-personalizado"></span>
+                            <span>Coleta de leitura</span>
                         </label>
 
-                        <input
-                            id="numero-instalacao"
-                            type="text"
-                            inputmode="numeric"
-                            autocomplete="off"
-                            placeholder="Digite o número da instalação"
+
+                        <!-- NÚMERO DA INSTALAÇÃO -->
+
+                        <div
+                            id="campo-instalacao"
+                            class="campo-incidente oculto"
                         >
+                            <label for="numero-instalacao">
+                                Nº instalação:
+                            </label>
+
+                            <input
+                                id="numero-instalacao"
+                                type="text"
+                                inputmode="numeric"
+                                autocomplete="off"
+                                placeholder="Digite o nº da instalação"
+                            >
+                        </div>
+
+
+                        <!-- TRIAGEM -->
+
+                        <label class="opcao-classificacao">
+                            <input
+                                type="radio"
+                                name="subtipo-servico"
+                                value="triagem"
+                            >
+                            <span class="radio-personalizado"></span>
+                            <span>Triagem</span>
+                        </label>
+
+
+                        <!-- LOCALIDADE -->
+
+                        <div
+                            id="campo-localidade"
+                            class="campo-incidente oculto"
+                        >
+                            <label for="localidade">
+                                Localidade:
+                            </label>
+
+                            <input
+                                id="localidade"
+                                type="text"
+                                autocomplete="off"
+                                placeholder="Digite o nome da localidade"
+                            >
+                        </div>
+
                     </div>
 
                 </div>
+
 
             </section>
 

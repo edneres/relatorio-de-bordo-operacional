@@ -751,6 +751,44 @@ body {
 }
 
 
+/* =========================================
+   RODAPÉ
+========================================= */
+
+.rodape-aplicacao {
+    width: 100%;
+
+    padding:
+        22px
+        20px
+        calc(22px + env(safe-area-inset-bottom));
+
+    border-top: 1px solid #e2e8f0;
+
+    text-align: center;
+
+    color: #64748b;
+}
+
+
+.rodape-aplicacao .link-desenvolvedora {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 5px;
+}
+
+
+.rodape-aplicacao p {
+    margin: 4px 0;
+
+    text-align: center;
+
+    font-size: 13px;
+    line-height: 1.4;
+}
+
 
 /* =========================================
    ELEMENTOS OCULTOS
@@ -829,17 +867,11 @@ body {
 ========================================= */
 
 .titulo-com-logo {
-    display: grid;
-
-    grid-template-columns:
-        80px
-        minmax(0, auto)
-        80px;
-
+    display: flex;
     align-items: center;
     justify-content: center;
 
-    column-gap: 12px;
+    gap: 12px;
 
     width: 100%;
 
@@ -848,10 +880,12 @@ body {
 
 
 .logo-cabecalho {
+    display: block;
+
     width: 80px;
     height: 80px;
 
-    display: block;
+    flex: 0 0 80px;
 
     object-fit: contain;
 }
@@ -859,10 +893,6 @@ body {
 
 .titulo-com-logo h1 {
     margin: 0;
-
-    min-width: 0;
-
-    text-align: center;
 }
 
 .subtitulo-regional {
@@ -1303,77 +1333,4 @@ input[type="radio"]:checked
 
     box-shadow:
         0 0 0 3px rgba(100, 116, 139, 0.12);
-}
-
-/* =========================================
-   RODAPÉ DA APLICAÇÃO
-========================================= */
-
-.rodape-aplicacao {
-    width: 100%;
-
-    margin-top: 36px;
-    padding:
-        24px
-        20px
-        calc(24px + env(safe-area-inset-bottom));
-
-    border-top: 1px solid #e2e8f0;
-
-    text-align: center;
-
-    background-color: #ffffff;
-}
-
-
-.rodape-aplicacao .link-desenvolvedora {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-
-    gap: 6px;
-
-    margin-bottom: 10px;
-
-    color: #0f172a;
-
-    font-size: 14px;
-    font-weight: 600;
-
-    text-decoration: none;
-}
-
-
-.rodape-aplicacao .link-desenvolvedora:hover {
-    color: #0a66c2;
-    text-decoration: underline;
-}
-
-
-.rodape-aplicacao p {
-    margin: 5px 0;
-
-    color: #64748b;
-
-    font-size: 13px;
-    line-height: 1.4;
-}
-
-/* =========================================
-   ÁREA DO BOTÃO REINICIAR
-========================================= */
-
-.area-reiniciar {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-
-    width: 100%;
-
-    margin: 0 0 20px 0;
-}
-
-
-.area-reiniciar.oculto {
-    display: none;
 }
