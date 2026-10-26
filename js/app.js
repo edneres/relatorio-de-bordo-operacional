@@ -902,7 +902,7 @@ function atualizarValidacaoRegistro() {
         botaoGerarPDF.disabled =
             !registroValido;
 
-    }
+    }   
 
 
     atualizarPreviaNomeArquivo();

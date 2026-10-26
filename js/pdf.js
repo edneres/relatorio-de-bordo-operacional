@@ -595,7 +595,7 @@ async function gerarPDF(nomePersonalizado) {
 
                 pdf,
 
-                preparada,
+                preparada,   
 
                 xFoto,
 

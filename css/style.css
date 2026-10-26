@@ -774,11 +774,11 @@ body {
 .rodape-aplicacao .link-desenvolvedora {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center;    
 
     margin-bottom: 5px;
 }
-
+    
 
 .rodape-aplicacao p {
     margin: 4px 0;
