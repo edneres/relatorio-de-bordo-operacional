@@ -680,12 +680,6 @@ async function gerarPDF(nomePersonalizado,dadosRegistro = {}) {
 
     /*
     =========================================
-    NOME DO ARQUIVO
-    =========================================
-    */
-
-    /*
-    =========================================
     NOME DO ARQUIVO INFORMADO PELO USUÁRIO
     =========================================
     */
@@ -877,6 +871,28 @@ async function gerarPDF(nomePersonalizado,dadosRegistro = {}) {
     pdf.save(
         nomeArquivo
     );
+
+    /*
+    -----------------------------------------
+    TENTA SINCRONIZAR IMEDIATAMENTE
+    -----------------------------------------
+
+    O PDF já está salvo no IndexedDB.
+
+    Se houver internet, inicia o envio ao Google Drive.
+    Se estiver offline, ele continuará PENDENTE e será
+    enviado quando a conexão retornar.
+    */
+
+    if (
+        salvoNaFila &&
+        navigator.onLine &&
+        typeof sincronizarFilaPDFs === "function"
+    ) {
+
+        sincronizarFilaPDFs();
+
+    }
 
 
 /*
