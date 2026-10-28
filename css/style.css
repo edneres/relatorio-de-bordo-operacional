@@ -171,8 +171,9 @@ body {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-
+    
     margin: 0 0 20px 0;
+    margin-top: 40px;
     padding: 0;
 }
 
@@ -182,9 +183,8 @@ body {
 ========================================= */
 
 .conteudo {
-    padding: 20px;
+    padding: 10px 20px 20px;
 }
-
 
 
 /* =========================================
@@ -1341,4 +1341,99 @@ input[type="radio"]:checked
 
     box-shadow:
         0 0 0 3px rgba(100, 116, 139, 0.12);
+}
+
+/* =========================================
+   RELATÓRIOS PENDENTES DE ENVIO
+========================================= */
+
+.relatorios-pendentes {
+    margin: 12px 0 0;
+
+    padding: 18px 20px;
+
+    border: 1px solid #e7c66b;
+    border-radius: 14px;
+
+    background: #fff8e8;
+
+    box-sizing: border-box;
+}
+
+.relatorios-pendentes-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 12px;
+
+    color: #1f2937;
+}
+
+.relatorios-pendentes-cabecalho strong {
+    font-size: 16px;
+}
+
+#quantidade-relatorios-pendentes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 26px;
+    height: 26px;
+    padding: 0 8px;
+
+    border-radius: 999px;
+
+    background: #e5b52e;
+    color: #111827;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.lista-relatorios-pendentes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    max-height: 190px;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding-right: 4px;
+}
+
+.relatorio-pendente-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 10px 12px;
+
+    background: #ffffff;
+    border: 1px solid #eadba9;
+    border-radius: 10px;
+
+    font-size: 13px;
+    color: #374151;
+}
+
+.relatorio-pendente-icone {
+    flex-shrink: 0;
+}
+
+.relatorio-pendente-nome {
+    min-width: 0;
+
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.modal-texto p {
+    text-align: justify;
+    text-justify: inter-word;
+    line-height: 1.6;
 }

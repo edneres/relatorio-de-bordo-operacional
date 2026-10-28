@@ -164,9 +164,53 @@
 
         <section class="conteudo">
 
+            
+
+
             <!-- =====================================
-                REINICIAR REGISTRO
+                 CONTADOR OCULTO
             ====================================== -->
+
+            <div class="resumo oculto">
+
+                <span id="contador-fotos">
+                    Nenhuma fotografia registrada
+                </span>
+
+            </div>
+            
+
+            <!-- =========================================
+                RELATÓRIOS PENDENTES DE ENVIO
+            ========================================= -->
+
+            <section
+                id="relatorios-pendentes"
+                class="relatorios-pendentes oculto"
+            >
+                <div class="relatorios-pendentes-cabecalho">
+
+                    <strong>
+                        Relatórios Pendentes de Envio
+                    </strong>
+
+                    <span id="quantidade-relatorios-pendentes">
+                        0
+                    </span>
+
+                </div>
+
+                <div
+                    id="lista-relatorios-pendentes"
+                    class="lista-relatorios-pendentes"
+                ></div>
+
+            </section>
+
+
+            <!-- =========================================
+                REINICIAR REGISTRO
+            ========================================= -->
 
             <div
                 id="area-reiniciar"
@@ -182,20 +226,6 @@
                 </button>
 
             </div>
-
-
-            <!-- =====================================
-                 CONTADOR OCULTO
-            ====================================== -->
-
-            <div class="resumo oculto">
-
-                <span id="contador-fotos">
-                    Nenhuma fotografia registrada
-                </span>
-
-            </div>
-
 
 
             <!-- =====================================
@@ -672,7 +702,7 @@
 
             <script>
 
-                const VERSAO_APP = "v2.3.0";
+                const VERSAO_APP = "v2.5.0";
 
                 document.getElementById("versao-app").textContent =
                     VERSAO_APP;
@@ -733,7 +763,7 @@
                 </span>
 
                 <h2 id="titulo-informacoes">
-                    Sobre o RELATÓRIO DE BORDO OPERACIONAL
+                    Sobre o Relatório de Bordo Operacional
                 </h2>
 
             </div>
@@ -746,7 +776,6 @@
 
             <div class="modal-texto">
 
-
                 <!-- =================================
                     FUNCIONAMENTO
                 ================================== -->
@@ -756,53 +785,37 @@
                 </h3>
 
                 <p>
-                    A aplicação permite registrar e organizar fotografias
-                    em campo e gerar um relatório fotográfico em PDF.
-                    As informações e imagens permanecem salvas no dispositivo
-                    até que a opção <strong>Reiniciar</strong> seja utilizada.
+                    A aplicação permite registrar fotografias em campo,
+                    organizá-las por classificação e gerar um relatório
+                    fotográfico em PDF.
                 </p>
 
-
-
-                <!-- =================================
-                    UTILIZAÇÃO
-                ================================== -->
-
-                <h3>
-                    Utilização
-                </h3>
-
                 <p>
-                    Antes de fotografar, selecione a
+                    Antes de iniciar, selecione a
                     <strong>Classificação do Registro</strong>
                     e informe o <strong>Nome da Ação</strong>.
                 </p>
 
+
+                <!-- =================================
+                    FOTOGRAFIAS E RELATÓRIO
+                ================================== -->
+
+                <h3>
+                    Fotografias e Relatório
+                </h3>
+
                 <p>
-                    Utilize o botão
-                    <strong>📸 Tirar Fotografia</strong>
-                    para adicionar uma imagem ao histórico.
-                    Cada fotografia pode receber um
-                    <strong>detalhamento opcional de até 200 caracteres</strong>.
+                    Utilize <strong>📸 Tirar Fotografia</strong> para adicionar
+                    imagens ao histórico. Cada fotografia pode receber um
+                    detalhamento opcional de até 200 caracteres.
                 </p>
 
                 <p>
-                    Para excluir uma fotografia individualmente,
-                    utilize o botão de exclusão localizado sobre a imagem.
+                    Ao finalizar, selecione <strong>📄 Gerar PDF</strong>.
+                    O nome do arquivo é definido automaticamente conforme
+                    os dados do registro.
                 </p>
-
-                <p>
-                    Após concluir o registro, selecione
-                    <strong>📄 Gerar PDF</strong>.
-                    O nome do arquivo será definido automaticamente
-                    conforme a classificação e o Nome da Ação.
-                </p>
-
-                <p>
-                    Para iniciar um novo registro e excluir os dados atuais,
-                    utilize <strong>Reiniciar</strong> no canto superior direito.
-                </p>
-
 
 
                 <!-- =================================
@@ -814,44 +827,37 @@
                 </h3>
 
                 <p>
-                    Com a permissão de localização concedida,
-                    as coordenadas geográficas e a precisão do GPS
-                    são obtidas no momento de cada fotografia.
+                    Com a permissão de localização concedida, cada fotografia
+                    registra as coordenadas e a precisão do GPS. Quando disponível,
+                    município e UF também são identificados.
                 </p>
 
                 <p>
-                    Quando houver conexão com a internet,
-                    a localização poderá ser complementada
-                    automaticamente com o município e a UF.
+                    No PDF, a fotografia permite acessar sua localização
+                    diretamente no Google Maps.
                 </p>
-
-                <p>
-                    No relatório PDF, clique ou toque sobre a fotografia
-                    para abrir sua respectiva localização no Google Maps.
-                </p>
-
 
 
                 <!-- =================================
-                    ARMAZENAMENTO
+                    ARMAZENAMENTO E ENVIO
                 ================================== -->
 
                 <h3>
-                    Armazenamento
+                    Armazenamento e Envio
                 </h3>
 
                 <p>
-                    As fotografias, a classificação, o Nome da Ação
-                    e os detalhamentos são armazenados localmente
-                    no dispositivo. Recarregar a página ou fechar
-                    a aplicação não exclui o registro em andamento.
+                    O registro em andamento é armazenado no dispositivo,
+                    permitindo continuar o preenchimento mesmo após fechar
+                    ou atualizar a aplicação.
                 </p>
 
                 <p>
-                    Os dados são removidos somente após a confirmação
-                    da opção <strong>Reiniciar</strong>.
+                    Após gerar o PDF, o relatório é enviado automaticamente.
+                    Se não houver conexão, ele permanecerá em
+                    <strong>Relatórios Pendentes de Envio</strong> até que
+                    seja possível sincronizá-lo.
                 </p>
-
 
 
                 <!-- =================================
@@ -863,40 +869,26 @@
                 </h3>
 
                 <p>
-                    A ausência de conexão com a internet não impede
-                    o registro das fotografias, o preenchimento das
-                    informações ou o armazenamento dos dados disponíveis
-                    no dispositivo.
+                    A ausência de internet não impede o preenchimento,
+                    o registro das fotografias ou a geração do PDF.
+                    Recursos que dependem de conexão serão retomados
+                    quando a internet estiver disponível.
                 </p>
-
-                <p>
-                    Recursos externos, como a identificação do município
-                    e da UF e a abertura da localização no Google Maps,
-                    poderão ficar indisponíveis até que a conexão
-                    seja restabelecida.
-                </p>
-
 
 
                 <!-- =================================
-                    OBSERVAÇÕES
+                    OBSERVAÇÃO
                 ================================== -->
 
                 <h3>
-                    Observações
+                    Observação
                 </h3>
 
                 <p>
-                    A precisão das coordenadas depende do dispositivo,
-                    das permissões concedidas e das condições de recepção
-                    do sinal de localização.
+                    A precisão da localização depende do dispositivo,
+                    das permissões concedidas e da disponibilidade
+                    do sinal de GPS.
                 </p>
-
-                <p>
-                    A indisponibilidade do município ou da UF não impede
-                    o registro da fotografia nem a geração do relatório.
-                </p>
-
 
             </div>
 

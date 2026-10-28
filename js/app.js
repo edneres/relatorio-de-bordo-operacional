@@ -684,10 +684,21 @@ document.addEventListener(
                 };
 
 
-                await gerarPDF(
-                    nomeArquivo,
-                    dadosRegistro
-                );
+                const resultadoPDF =
+                    await gerarPDF(
+                        nomeArquivo,
+                        dadosRegistro
+                    );
+
+
+                if (
+                    resultadoPDF &&
+                    resultadoPDF.salvoNaFila === true
+                ) {
+
+                    await limparRegistroAtual();
+
+                }
 
             }
         );
@@ -3335,6 +3346,27 @@ async function reiniciarRegistro() {
         return;
 
     }
+
+
+    await limparRegistroAtual();
+
+}
+
+
+/*
+=========================================
+LIMPAR REGISTRO ATUAL
+=========================================
+
+Esta função realiza a limpeza efetiva do
+registro atual.
+
+Ela pode ser utilizada tanto pelo botão
+Reiniciar quanto após a geração segura
+do PDF.
+*/
+
+async function limparRegistroAtual() {
 
 
     /*

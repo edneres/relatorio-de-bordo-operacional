@@ -147,6 +147,170 @@ async function enviarPDFWorker(registroPDF) {
 
 /*
 =========================================================
+ATUALIZAR RELATÓRIOS PENDENTES NA INTERFACE
+=========================================================
+*/
+
+async function atualizarRelatoriosPendentes() {
+
+    const painel =
+        document.getElementById(
+            "relatorios-pendentes"
+        );
+
+    const lista =
+        document.getElementById(
+            "lista-relatorios-pendentes"
+        );
+
+    const quantidade =
+        document.getElementById(
+            "quantidade-relatorios-pendentes"
+        );
+
+
+    /*
+    O HTML ainda pode não estar disponível
+    em algum momento muito inicial da página.
+    */
+
+    if (
+        !painel ||
+        !lista ||
+        !quantidade
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const pendentes =
+            await listarPDFsPendentes();
+
+
+        /*
+        -----------------------------------------
+        LIMPA SOMENTE A REPRESENTAÇÃO VISUAL
+        -----------------------------------------
+        */
+
+        lista.innerHTML = "";
+
+
+        /*
+        -----------------------------------------
+        NENHUM PDF PENDENTE
+        -----------------------------------------
+        */
+
+        if (
+            !pendentes ||
+            pendentes.length === 0
+        ) {
+
+            quantidade.textContent = "0";
+
+            painel.classList.add(
+                "oculto"
+            );
+
+            return;
+
+        }
+
+
+        /*
+        -----------------------------------------
+        EXISTEM PDFs PENDENTES
+        -----------------------------------------
+        */
+
+        quantidade.textContent =
+            String(
+                pendentes.length
+            );
+
+
+        pendentes.forEach(
+            function (registroPDF) {
+
+                const item =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                item.className =
+                    "relatorio-pendente-item";
+
+
+                const icone =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                icone.className =
+                    "relatorio-pendente-icone";
+
+                icone.textContent =
+                    "📄";
+
+
+                const nome =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                nome.className =
+                    "relatorio-pendente-nome";
+
+                nome.textContent =
+                    registroPDF.nomeArquivo ||
+                    "Relatório sem nome";
+
+
+                item.appendChild(
+                    icone
+                );
+
+                item.appendChild(
+                    nome
+                );
+
+
+                lista.appendChild(
+                    item
+                );
+
+            }
+        );
+
+
+        painel.classList.remove(
+            "oculto"
+        );
+
+    }
+
+    catch (erro) {
+
+        console.error(
+            "Não foi possível atualizar os relatórios pendentes:",
+            erro
+        );
+
+    }
+
+}
+
+
+/*
+=========================================================
 SINCRONIZAR UM PDF
 =========================================================
 */
@@ -237,6 +401,8 @@ async function sincronizarPDF(
         );
 
 
+        await atualizarRelatoriosPendentes();
+
         return true;
 
     }
@@ -268,7 +434,8 @@ async function sincronizarPDF(
             }
         );
 
-
+        await atualizarRelatoriosPendentes();
+        
         return false;
 
     }
@@ -431,19 +598,29 @@ tentamos sincronizá-los automaticamente.
 =========================================================
 */
 
+
 window.addEventListener(
     "load",
     function () {
 
         /*
-        Pequeno atraso para permitir que os demais
-        componentes do aplicativo sejam carregados.
+        Mostra imediatamente qualquer PDF
+        que já esteja pendente.
+        */
+
+        atualizarRelatoriosPendentes();
+
+
+        /*
+        Depois tenta realizar a sincronização.
         */
 
         setTimeout(
-            function () {
+            async function () {
 
-                sincronizarFilaPDFs();
+                await sincronizarFilaPDFs();
+
+                await atualizarRelatoriosPendentes();
 
             },
             1500

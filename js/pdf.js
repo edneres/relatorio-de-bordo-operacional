@@ -886,6 +886,13 @@ async function gerarPDF(nomePersonalizado,dadosRegistro = {}) {
 
     if (
         salvoNaFila &&
+        typeof atualizarRelatoriosPendentes === "function"
+    ) {
+        await atualizarRelatoriosPendentes();
+    }
+
+    if (
+        salvoNaFila &&
         navigator.onLine &&
         typeof sincronizarFilaPDFs === "function"
     ) {
