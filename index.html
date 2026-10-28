@@ -658,6 +658,32 @@
                 2026
             </p>
 
+            <div
+                id="versao-app"
+                style="
+                    margin-top: 6px;
+                    font-size: 11px;
+                    color: #9ca3af;
+                    text-align: right;
+                    opacity: 0.8;
+                "
+            >
+            </div>
+
+            <script>
+
+                const VERSAO_APP = "v2.3.0";
+
+                document.getElementById("versao-app").textContent =
+                    VERSAO_APP;
+
+                console.log(
+                    `%cRelatório de Bordo Operacional — ${VERSAO_APP}`,
+                    "font-weight: bold; font-size: 14px;"
+                );
+
+            </script>
+
         </footer>
 
     </main>
@@ -918,28 +944,7 @@
                     2026
                 </p>
 
-                <div
-                    id = "versao-app"
-                    style="
-                        margin-top: 6px;
-                        font-size: 11px;
-                        color: #9ca3af;
-                        text-align: center;
-                        opacity: 0.8;
-                    "
-                >
-                    v2.3.0
-                </div>
-
-                <script>
-                    console.log(
-                        "%cRelatório de Bordo Operacional — v1.1.0",
-                        "font-weight: bold; font-size: 14px;"
-                    );
-                </script>
-
             </div>
-
 
         </div>
 
