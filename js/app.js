@@ -4066,6 +4066,75 @@ async function limparRegistroAtual() {
 
     /*
     =========================================
+    LIMPA CARACTERÍSTICAS DA EQUIPE
+    =========================================
+    */
+
+    const campoPrefixoEquipe =
+        document.getElementById(
+            "prefixo-equipe"
+        );
+
+    const campoPlacaViatura =
+        document.getElementById(
+            "placa-viatura"
+        );
+
+    const contadorPrefixoEquipe =
+        document.getElementById(
+            "contador-prefixo-equipe"
+        );
+
+    const contadorPlacaViatura =
+        document.getElementById(
+            "contador-placa-viatura"
+        );
+
+
+    if (campoPrefixoEquipe) {
+
+        campoPrefixoEquipe.value = "";
+
+    }
+
+    if (campoPlacaViatura) {
+
+        campoPlacaViatura.value = "";
+
+    }
+
+
+    /*
+    =========================================
+    REINICIA CONTADORES
+    =========================================
+    */
+
+    if (contadorPrefixoEquipe) {
+
+        contadorPrefixoEquipe.textContent = "0/15";
+
+    }
+
+    if (contadorPlacaViatura) {
+
+        contadorPlacaViatura.textContent = "0/7";
+
+    }
+
+
+    /*
+    =========================================
+    OCULTA CARACTERÍSTICAS DA EQUIPE
+    =========================================
+    */
+
+    atualizarCaracteristicasEquipe();
+
+
+
+    /*
+    =========================================
     LIMPA NOME DA AÇÃO
     =========================================
     */
