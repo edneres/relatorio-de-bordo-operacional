@@ -2188,6 +2188,7 @@ function atualizarContadorNomeAcao() {
 
 
 
+
 /*
 =========================================
 MONTAR NOME DO ARQUIVO PDF
@@ -2204,9 +2205,19 @@ function montarNomeArquivoPDF() {
             "nome-acao"
         );
 
+    /*
+    =========================================
+    OBTÉM A SECCIONAL SELECIONADA
+    =========================================
+    */
+
+    const seccional =
+        obterSeccionalSelecionada();
+
     if (
         !classificacao ||
-        !campoNomeAcao
+        !campoNomeAcao ||
+        !seccional
     ) {
 
         return "";
@@ -2384,9 +2395,19 @@ function montarNomeArquivoPDF() {
     =========================================
     NOME FINAL DO ARQUIVO
     =========================================
+
+    PADRÃO:
+
+    SECCIONAL - CATEGORIA - SUBCATEGORIA -
+    INFORMAÇÕES ADICIONAIS - NOME DA AÇÃO
+    =========================================
     */
 
     return (
+        seccional.trim()
+        +
+        " - "
+        +
         prefixo
         +
         " - "
@@ -2395,6 +2416,7 @@ function montarNomeArquivoPDF() {
     );
 
 }
+
 
 
 /*

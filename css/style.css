@@ -1589,6 +1589,84 @@ TAMANHO DA CÂMERA INICIAL
 }
 
 
+/*
+=========================================
+BOTÕES DE FOTOGRAFIA E PDF
+=========================================
+*/
+
+#acoes-finais {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 24px;
+
+    width: 100%;
+}
+
+#acoes-finais {
+    margin-top: 24px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 50px;
+    width: 100%;
+}
+
+/*
+-----------------------------------------
+TIRAR FOTOGRAFIA 111827
+-----------------------------------------
+*/
+
+#acoes-finais #btn-camera {
+    width: 100%;
+    max-width: 420px;
+
+    background-color: #111827;
+}
+
+
+/*
+-----------------------------------------
+GERAR PDF
+-----------------------------------------
+*/
+
+#acoes-finais #btn-pdf {
+    width: 100%;
+    max-width: 420px;
+
+    background-color: #0d4f85;
+    color: #ffffff;
+}
+
+/*
+-----------------------------------------
+TELAS DE CELULAR
+-----------------------------------------
+*/
+
+@media (max-width: 600px) {
+
+    #acoes-finais {
+        gap: 28px;
+    }
+
+    #acoes-finais #btn-camera,
+    #acoes-finais #btn-pdf {
+        width: 100%;
+        max-width: 100%;
+        min-height: 54px;
+    }
+
+}
+
+
+
 
 /*
 =========================================
