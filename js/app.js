@@ -120,6 +120,38 @@ document.addEventListener(
 
         /*
         =========================================
+        SECCIONAL
+        =========================================
+        */
+
+        const opcoesSeccional =
+            document.querySelectorAll(
+                'input[name="seccional"]'
+            );
+
+        opcoesSeccional.forEach(
+            function (opcao) {
+
+                opcao.addEventListener(
+                    "change",
+                    function () {
+
+                        atualizarValidacaoRegistro();
+
+                        atualizarBotoes();
+
+                        salvarDadosRegistro();
+
+                    }
+                );
+
+            }
+        );
+
+
+
+        /*
+        =========================================
         CLASSIFICAÇÃO DO REGISTRO
         =========================================
         */
@@ -661,6 +693,9 @@ document.addEventListener(
 
                 const dadosRegistro = {
 
+                    seccional:
+                        obterSeccionalSelecionada(),
+
                     categoria:
                         classificacao.categoria || "",
 
@@ -897,6 +932,27 @@ document.addEventListener(
 );
 
 
+/*
+=========================================
+OBTER SECCIONAL SELECIONADA
+=========================================
+*/
+
+function obterSeccionalSelecionada() {
+
+    const opcaoSelecionada =
+        document.querySelector(
+            'input[name="seccional"]:checked'
+        );
+
+    return opcaoSelecionada
+        ? opcaoSelecionada.value
+        : "";
+
+}
+
+
+
 
 /*
 =========================================
@@ -907,9 +963,12 @@ ATUALIZAR VALIDAÇÃO DO REGISTRO
 function atualizarValidacaoRegistro() {
 
     const registroValido =
+        obterSeccionalSelecionada() !== ""
+        &&
         classificacaoPreenchida()
         &&
         nomeAcaoPreenchido();
+
 
 
     const botaoCameraInicial =
@@ -994,8 +1053,10 @@ async function salvarDadosRegistro() {
             "nome-acao"
         );
 
-
     const dadosRegistro = {
+
+        seccional:
+            obterSeccionalSelecionada(),
 
         categoria:
             tipo
@@ -1221,6 +1282,33 @@ async function restaurarDadosRegistro() {
         document.getElementById(
             "nome-acao"
         );
+
+
+        /*
+        =========================================
+        RESTAURA SECCIONAL
+        =========================================
+        */
+
+        if (registro.seccional) {
+
+            const opcaoSeccional =
+                Array.from(
+                    document.querySelectorAll(
+                        'input[name="seccional"]'
+                    )
+                ).find(
+                    opcao =>
+                        opcao.value === registro.seccional
+                );
+
+            if (opcaoSeccional) {
+
+                opcaoSeccional.checked = true;
+
+            }
+
+        }
 
 
     /*
@@ -3433,6 +3521,25 @@ async function limparRegistroAtual() {
     */
 
     fotografias = [];
+
+
+
+    /*
+    =========================================
+    LIMPA SECCIONAL
+    =========================================
+    */
+
+    document.querySelectorAll(
+        'input[name="seccional"]'
+    ).forEach(
+        function (opcao) {
+
+            opcao.checked = false;
+
+        }
+    );
+
 
 
     /*

@@ -764,6 +764,9 @@ async function salvarClassificacaoLocal(
             chave:
                 "classificacao",
 
+            seccional:
+                classificacao?.seccional || "", 
+
             categoria:
                 classificacao?.categoria || "",
 
@@ -891,6 +894,9 @@ async function carregarClassificacaoLocal() {
 
                 resolve({
 
+                    seccional:
+                        registro.seccional || "",
+
                     categoria:
                         registro.categoria || "",
 
@@ -1008,6 +1014,9 @@ async function salvarPDFPendente(
 
         arquivoPDF:
             dadosPDF.arquivoPDF,
+
+        seccional:
+            dadosPDF.seccional || "",
 
         categoria:
             dadosPDF.categoria || "",

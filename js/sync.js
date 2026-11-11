@@ -53,6 +53,11 @@ async function enviarPDFWorker(registroPDF) {
     );
 
     formulario.append(
+        "seccional",
+        registroPDF.seccional || ""
+    );
+
+    formulario.append(
         "categoria",
         registroPDF.categoria || ""
     );

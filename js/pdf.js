@@ -791,6 +791,9 @@ async function gerarPDF(nomePersonalizado,dadosRegistro = {}) {
         arquivoPDF:
             arquivoPDF,
 
+        seccional:
+            dadosRegistro.seccional || "",
+
         categoria:
             dadosRegistro.categoria || "",
 
