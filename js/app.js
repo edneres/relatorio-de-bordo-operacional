@@ -2488,6 +2488,38 @@ async function adicionarFotografia(
     const localizacao =
         await obterLocalizacaoGPS();
 
+    
+    /*
+    =========================================
+    VALIDAÇÃO OBRIGATÓRIA DO GPS
+    =========================================
+    */
+
+    const coordenadasValidas =
+        localizacao &&
+        localizacao.sucesso === true &&
+        Number.isFinite(localizacao.latitude) &&
+        Number.isFinite(localizacao.longitude) &&
+        localizacao.latitude >= -90 &&
+        localizacao.latitude <= 90 &&
+        localizacao.longitude >= -180 &&
+        localizacao.longitude <= 180;
+
+    if (!coordenadasValidas) {
+
+        gpsCameraBloqueado = true;
+        gpsCameraAutorizado = false;
+
+        console.warn(
+            "Fotografia descartada: coordenadas GPS indisponíveis."
+        );
+
+        exibirAvisoGPS();
+
+        return;
+    }
+
+
 
     /*
     -----------------------------------------

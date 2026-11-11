@@ -4,101 +4,68 @@ OBTER LOCALIZAÇÃO GPS
 =========================================
 */
 
+
 function obterLocalizacaoGPS() {
 
     return new Promise(function (resolve) {
 
+        const falha = {
+            sucesso: false,
+            latitude: null,
+            longitude: null,
+            precisao: null
+        };
+
         if (!navigator.geolocation) {
-
-            resolve({
-                sucesso: false,
-                latitude: null,
-                longitude: null,
-                precisao: null
-            });
-
+            resolve(falha);
             return;
         }
 
-
         navigator.geolocation.getCurrentPosition(
-
-            /*
-            =====================================
-            SUCESSO
-            =====================================
-            */
 
             function (posicao) {
 
-                resolve({
+                const latitude = posicao.coords.latitude;
+                const longitude = posicao.coords.longitude;
 
+                const coordenadasValidas =
+                    Number.isFinite(latitude) &&
+                    Number.isFinite(longitude) &&
+                    latitude >= -90 &&
+                    latitude <= 90 &&
+                    longitude >= -180 &&
+                    longitude <= 180;
+
+                if (!coordenadasValidas) {
+                    resolve(falha);
+                    return;
+                }
+
+                resolve({
                     sucesso: true,
-
-                    latitude:
-                        posicao.coords.latitude,
-
-                    longitude:
-                        posicao.coords.longitude,
-
-                    precisao:
-                        posicao.coords.accuracy
-
+                    latitude: latitude,
+                    longitude: longitude,
+                    precisao: posicao.coords.accuracy
                 });
-
             },
 
+            function (erro) {
 
-            /*
-            =====================================
-            ERRO
-            =====================================
-            */
+                console.warn(
+                    "Não foi possível obter o GPS:",
+                    erro
+                );
 
-            function () {
-
-                /*
-                    Falha silenciosa.
-
-                    A fotografia continuará sendo
-                    registrada mesmo sem GPS.
-                */
-
-                resolve({
-
-                    sucesso: false,
-
-                    latitude: null,
-
-                    longitude: null,
-
-                    precisao: null
-
-                });
-
+                resolve(falha);
             },
-
-
-            /*
-            =====================================
-            CONFIGURAÇÕES
-            =====================================
-            */
 
             {
-
                 enableHighAccuracy: true,
-
                 timeout: 15000,
-
                 maximumAge: 0
-
             }
-
         );
-
     });
-
 }
 
 
