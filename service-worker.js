@@ -12,7 +12,7 @@ VERSÃO DO APLICATIVO
 =========================================
 */
 
-const VERSAO_APP = "2.7.0";
+const VERSAO_APP = "2.7.1";
 
 const NOME_CACHE =
     `relatorio-bordo-operacional-v${VERSAO_APP}`;

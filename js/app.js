@@ -7,10 +7,11 @@ FOTOGRAFIAS DO REGISTRO ATUAL
 let fotografias = [];
 
 
+
 /*
 =========================================
 CARACTERÍSTICAS DA EQUIPE
-EXCLUSIVO PARA MANUTENÇÃO
+EXPANSÃO E MANUTENÇÃO
 =========================================
 */
 
@@ -37,39 +38,72 @@ function atualizarCaracteristicasEquipe() {
         );
 
     if (!secao || !prefixo || !placa) {
+
         console.warn(
             "Campos de Características da Equipe não encontrados."
         );
+
         return;
     }
 
-    const manutencaoSelecionada =
-        categoriaSelecionada?.value === "manutencao";
+    /*
+    =========================================
+    VERIFICA CATEGORIA
+    =========================================
+    */
 
-    console.log(
-        "Categoria selecionada:",
-        categoriaSelecionada?.value
-    );
+    const categoria =
+        categoriaSelecionada?.value;
+
+    const exibirCaracteristicas =
+        categoria === "manutencao" ||
+        categoria === "expansao";
+
+    /*
+    =========================================
+    EXIBIÇÃO DA SEÇÃO
+    =========================================
+    */
 
     secao.classList.toggle(
         "oculto",
-        !manutencaoSelecionada
+        !exibirCaracteristicas
     );
 
-    secao.hidden = !manutencaoSelecionada;
+    secao.hidden = !exibirCaracteristicas;
 
-    prefixo.disabled = !manutencaoSelecionada;
-    placa.disabled = !manutencaoSelecionada;
+    /*
+    =========================================
+    HABILITAÇÃO DOS CAMPOS
+    =========================================
+    */
 
-    prefixo.required = manutencaoSelecionada;
-    placa.required = manutencaoSelecionada;
+    prefixo.disabled = !exibirCaracteristicas;
+    placa.disabled = !exibirCaracteristicas;
+
+    prefixo.required = exibirCaracteristicas;
+    placa.required = exibirCaracteristicas;
+
+    /*
+    =========================================
+    LOGS
+    =========================================
+    */
+
+    console.log(
+        "Categoria selecionada:",
+        categoria
+    );
 
     console.log(
         "Características da Equipe:",
-        manutencaoSelecionada ? "VISÍVEL" : "OCULTA"
+        exibirCaracteristicas
+            ? "VISÍVEL"
+            : "OCULTA"
     );
 
 }
+
 
 
 
@@ -1129,6 +1163,7 @@ function obterSeccionalSelecionada() {
 
 
 
+
 /*
 =========================================
 ATUALIZAR VALIDAÇÃO DO REGISTRO
@@ -1139,7 +1174,7 @@ function atualizarValidacaoRegistro() {
 
     /*
     =========================================
-    VALIDAÇÃO DAS CARACTERÍSTICAS DA EQUIPE
+    CATEGORIA SELECIONADA
     =========================================
     */
 
@@ -1148,24 +1183,34 @@ function atualizarValidacaoRegistro() {
             'input[name="tipo-servico"]:checked'
         )?.value || "";
 
-    const manutencaoSelecionada =
-        categoriaSelecionada === "manutencao";
+    const exigeCaracteristicasEquipe =
+        categoriaSelecionada === "manutencao" ||
+        categoriaSelecionada === "expansao";
+
+    /*
+    =========================================
+    VALIDAÇÃO DAS CARACTERÍSTICAS DA EQUIPE
+    =========================================
+    */
 
     const campoPrefixo =
-        document.getElementById("prefixo-equipe");
+        document.getElementById(
+            "prefixo-equipe"
+        );
 
     const campoPlaca =
-        document.getElementById("placa-viatura");
+        document.getElementById(
+            "placa-viatura"
+        );
 
     const caracteristicasEquipeValidas =
-        !manutencaoSelecionada
+        !exigeCaracteristicasEquipe
         ||
         (
             (campoPrefixo?.value.trim().length || 0) > 0
             &&
             (campoPlaca?.value.trim().length || 0) > 0
         );
-
 
     /*
     =========================================
@@ -1182,8 +1227,11 @@ function atualizarValidacaoRegistro() {
         &&
         caracteristicasEquipeValidas;
 
-
-
+    /*
+    =========================================
+    BOTÕES
+    =========================================
+    */
 
     const botaoCameraInicial =
         document.getElementById(
@@ -1200,14 +1248,12 @@ function atualizarValidacaoRegistro() {
             "btn-pdf"
         );
 
-
     if (botaoCameraInicial) {
 
         botaoCameraInicial.disabled =
             !registroValido;
 
     }
-
 
     if (botaoCameraFinal) {
 
@@ -1216,18 +1262,23 @@ function atualizarValidacaoRegistro() {
 
     }
 
-
     if (botaoGerarPDF) {
 
         botaoGerarPDF.disabled =
             !registroValido;
 
-    }   
+    }
 
+    /*
+    =========================================
+    ATUALIZA PRÉVIA DO PDF
+    =========================================
+    */
 
     atualizarPreviaNomeArquivo();
 
 }
+
 
 /*
 =========================================
@@ -2189,6 +2240,7 @@ function atualizarContadorNomeAcao() {
 
 
 
+
 /*
 =========================================
 MONTAR NOME DO ARQUIVO PDF
@@ -2288,55 +2340,6 @@ function montarNomeArquivoPDF() {
 
         }
 
-
-        /*
-        -----------------------------------------
-        CARACTERÍSTICAS DA EQUIPE
-        -----------------------------------------
-        */
-
-        const campoPrefixoEquipe =
-            document.getElementById(
-                "prefixo-equipe"
-            );
-
-        const campoPlacaViatura =
-            document.getElementById(
-                "placa-viatura"
-            );
-
-        const prefixoEquipe =
-            campoPrefixoEquipe
-                ?.value.trim().toUpperCase() || "";
-
-        const placaViatura =
-            campoPlacaViatura
-                ?.value.trim().toUpperCase() || "";
-
-
-        /*
-        -----------------------------------------
-        ADICIONA PREFIXO E PLACA AO NOME
-        -----------------------------------------
-        */
-
-        if (
-            prefixo &&
-            prefixoEquipe &&
-            placaViatura
-        ) {
-
-            prefixo +=
-                " - "
-                +
-                prefixoEquipe
-                +
-                " - "
-                +
-                placaViatura;
-
-        }
-
     }
 
 
@@ -2393,13 +2396,69 @@ function montarNomeArquivoPDF() {
 
     /*
     =========================================
+    CARACTERÍSTICAS DA EQUIPE
+    EXPANSÃO E MANUTENÇÃO
+    =========================================
+    */
+
+    if (
+        classificacao.categoria === "Expansão" ||
+        classificacao.categoria === "Manutenção"
+    ) {
+
+        const campoPrefixoEquipe =
+            document.getElementById(
+                "prefixo-equipe"
+            );
+
+        const campoPlacaViatura =
+            document.getElementById(
+                "placa-viatura"
+            );
+
+        const prefixoEquipe =
+            campoPrefixoEquipe
+                ?.value.trim().toUpperCase() || "";
+
+        const placaViatura =
+            campoPlacaViatura
+                ?.value.trim().toUpperCase() || "";
+
+
+        /*
+        -----------------------------------------
+        ADICIONA PREFIXO E PLACA AO NOME
+        -----------------------------------------
+        */
+
+        if (
+            prefixoEquipe &&
+            placaViatura
+        ) {
+
+            prefixo +=
+                " - "
+                +
+                prefixoEquipe
+                +
+                " - "
+                +
+                placaViatura;
+
+        }
+
+    }
+
+
+    /*
+    =========================================
     NOME FINAL DO ARQUIVO
     =========================================
 
     PADRÃO:
 
     SECCIONAL - CATEGORIA - SUBCATEGORIA -
-    INFORMAÇÕES ADICIONAIS - NOME DA AÇÃO
+    INFORMAÇÕES DA EQUIPE - NOME DA AÇÃO
     =========================================
     */
 
