@@ -8,12 +8,14 @@ RELATÓRIO DE BORDO OPERACIONAL
 
 /*
 =========================================
-CONFIGURAÇÃO DO CACHE
+VERSÃO DO APLICATIVO
 =========================================
 */
 
+const VERSAO_APP = "2.7.0";
+
 const NOME_CACHE =
-    "relatorio-bordo-operacional";
+    `relatorio-bordo-operacional-v${VERSAO_APP}`;
 
 
 /*
