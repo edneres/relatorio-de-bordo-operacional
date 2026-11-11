@@ -932,14 +932,13 @@ RETORNO
 
 return {
 
-    id:
-        idPDF,
+    id: idPDF,
 
-    nomeArquivo:
-        nomeArquivo,
+    nomeArquivo: nomeArquivo,
 
-    salvoNaFila:
-        salvoNaFila
+    arquivoPDF: arquivoPDF,
+
+    salvoNaFila: salvoNaFila
 
 };
 

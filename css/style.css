@@ -1521,3 +1521,82 @@ CONTADORES - CARACTERÍSTICAS DA EQUIPE
     color: #58729b;
     white-space: nowrap;
 }
+
+
+/*
+=========================================
+CENTRALIZAR BOTÃO TIRAR FOTOGRAFIA
+=========================================
+*/
+
+#btn-camera {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-left: auto;
+    margin-right: auto;
+
+    text-align: center;
+}
+
+/*
+Mantém a centralização independentemente
+de o botão estar habilitado ou desabilitado.
+*/
+
+#btn-camera:disabled,
+#btn-camera:not(:disabled) {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+
+/*
+=========================================
+CENTRALIZAÇÃO DA CÂMERA INICIAL
+=========================================
+*/
+
+#acoes-iniciais {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+#acoes-iniciais #btn-camera {
+    margin-left: auto;
+    margin-right: auto;
+    align-self: center;
+}
+
+
+/*
+=========================================
+TAMANHO DA CÂMERA INICIAL
+=========================================
+*/
+
+#acoes-iniciais #btn-camera {
+    width: 335px;
+    max-width: 100%;
+    flex: 0 0 auto;
+    align-self: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+
+/*
+=========================================
+OCULTAR RELATÓRIOS PENDENTES
+TEMPORARIAMENTE
+=========================================
+*/
+
+#relatorios-pendentes {
+    display: none !important;
+}

@@ -882,14 +882,22 @@ document.addEventListener(
                     );
 
 
-                if (
-                    resultadoPDF &&
-                    resultadoPDF.salvoNaFila === true
-                ) {
+                
+                if (resultadoPDF) {
 
-                    await limparRegistroAtual();
+                    if (resultadoPDF.salvoNaFila === true) {
+
+                        await limparRegistroAtual();
+
+                    }
+
+                    exibirModalPDFGerado(
+                        resultadoPDF.arquivoPDF,
+                        resultadoPDF.nomeArquivo
+                    );
 
                 }
+
 
             }
         );
@@ -4153,5 +4161,257 @@ async function limparRegistroAtual() {
     atualizarInterface();
 
     atualizarBotoes();
+
+}
+
+
+/*
+=========================================
+MODAL DE PDF GERADO COM SUCESSO
+=========================================
+*/
+
+function exibirModalPDFGerado(arquivoPDF, nomeArquivo) {
+
+    const anterior =
+        document.getElementById("modal-pdf-gerado");
+
+    if (anterior) {
+        anterior.remove();
+    }
+
+    const modal = document.createElement("div");
+
+    modal.id = "modal-pdf-gerado";
+
+    Object.assign(modal.style, {
+        position: "fixed",
+        inset: "0",
+        background: "rgba(0, 0, 0, 0.55)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px",
+        zIndex: "99999"
+    });
+
+    const janela = document.createElement("div");
+
+    Object.assign(janela.style, {
+        background: "#ffffff",
+        color: "#222222",
+        borderRadius: "16px",
+        padding: "28px 22px",
+        width: "100%",
+        maxWidth: "340px",
+        textAlign: "center",
+        boxSizing: "border-box",
+        boxShadow: "0 12px 35px rgba(0,0,0,0.2)"
+    });
+
+    
+    /*
+    =========================================
+    ÍCONE DE SUCESSO
+    =========================================
+    */
+
+    const iconeSucesso = document.createElement("div");
+
+    iconeSucesso.innerHTML = `
+        <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#00C853"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+        >
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M7 12l3.5 3.5L17 9"/>
+        </svg>
+    `;
+
+    Object.assign(iconeSucesso.style, {
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: "18px"
+    });
+
+
+    /*
+    =========================================
+    TÍTULO
+    =========================================
+    */
+
+    const titulo = document.createElement("h3");
+
+    titulo.textContent = "PDF Gerado Com Sucesso!";
+
+    Object.assign(titulo.style, {
+        margin: "0 0 24px",
+        fontSize: "19px",
+        fontWeight: "600",
+        textAlign: "center"
+    });
+
+
+    const botaoCompartilhar =
+        document.createElement("button");
+
+    botaoCompartilhar.type = "button";
+
+    botaoCompartilhar.innerHTML = `
+        <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+        >
+            <circle cx="18" cy="5" r="3"/>
+            <circle cx="6" cy="12" r="3"/>
+            <circle cx="18" cy="19" r="3"/>
+            <path d="M8.7 13.5l6.6 4"/>
+            <path d="M15.3 6.5l-6.6 4"/>
+        </svg>
+        <span>Compartilhar PDF</span>
+    `;
+
+    Object.assign(botaoCompartilhar.style, {
+        width: "100%",
+        padding: "13px",
+        background: "#96999F",
+        color: "#ffffff",
+        border: "none",
+        borderRadius: "9px",
+        fontSize: "15px",
+        fontWeight: "600",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "10px"
+    });
+
+    botaoCompartilhar.addEventListener(
+        "click",
+        function () {
+            compartilharPDFGerado(
+                arquivoPDF,
+                nomeArquivo
+            );
+        }
+    );
+
+    const botaoFechar =
+        document.createElement("button");
+
+    botaoFechar.type = "button";
+    botaoFechar.textContent = "Fechar";
+
+    Object.assign(botaoFechar.style, {
+        marginTop: "16px",
+        background: "transparent",
+        border: "none",
+        color: "#666666",
+        fontSize: "14px",
+        cursor: "pointer",
+        padding: "8px 16px"
+    });
+
+    botaoFechar.addEventListener(
+        "click",
+        function () {
+            modal.remove();
+        }
+    );
+
+    janela.appendChild(iconeSucesso);
+    janela.appendChild(titulo);
+    janela.appendChild(botaoCompartilhar);
+    janela.appendChild(botaoFechar);
+
+    modal.appendChild(janela);
+
+    document.body.appendChild(modal);
+
+}
+
+
+/*
+=========================================
+COMPARTILHAR PDF GERADO
+=========================================
+*/
+
+async function compartilharPDFGerado(
+    arquivoPDF,
+    nomeArquivo
+) {
+
+    if (!arquivoPDF) {
+        alert("Arquivo PDF indisponível.");
+        return;
+    }
+
+    const arquivo = new File(
+        [arquivoPDF],
+        nomeArquivo,
+        {
+            type: "application/pdf"
+        }
+    );
+
+    if (
+        typeof navigator.share !== "function" ||
+        typeof navigator.canShare !== "function" ||
+        !navigator.canShare({
+            files: [arquivo]
+        })
+    ) {
+
+        alert(
+            "O compartilhamento direto de PDFs " +
+            "não é suportado neste navegador.\n\n" +
+            "Utilize o arquivo já baixado para " +
+            "compartilhar pelo WhatsApp ou Telegram."
+        );
+
+        return;
+    }
+
+    try {
+
+        await navigator.share({
+            files: [arquivo]
+        });
+
+    } catch (erro) {
+
+        if (erro.name === "AbortError") {
+            return;
+        }
+
+        console.error(
+            "Erro ao compartilhar PDF:",
+            erro
+        );
+
+        alert(
+            "Não foi possível compartilhar o PDF. " +
+            "Você pode utilizar o arquivo baixado."
+        );
+
+    }
 
 }
