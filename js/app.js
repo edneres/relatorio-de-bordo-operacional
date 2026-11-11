@@ -9,6 +9,72 @@ let fotografias = [];
 
 /*
 =========================================
+CARACTERÍSTICAS DA EQUIPE
+EXCLUSIVO PARA MANUTENÇÃO
+=========================================
+*/
+
+function atualizarCaracteristicasEquipe() {
+
+    const categoriaSelecionada =
+        document.querySelector(
+            'input[name="tipo-servico"]:checked'
+        );
+
+    const secao =
+        document.getElementById(
+            "caracteristicas-equipe"
+        );
+
+    const prefixo =
+        document.getElementById(
+            "prefixo-equipe"
+        );
+
+    const placa =
+        document.getElementById(
+            "placa-viatura"
+        );
+
+    if (!secao || !prefixo || !placa) {
+        console.warn(
+            "Campos de Características da Equipe não encontrados."
+        );
+        return;
+    }
+
+    const manutencaoSelecionada =
+        categoriaSelecionada?.value === "manutencao";
+
+    console.log(
+        "Categoria selecionada:",
+        categoriaSelecionada?.value
+    );
+
+    secao.classList.toggle(
+        "oculto",
+        !manutencaoSelecionada
+    );
+
+    secao.hidden = !manutencaoSelecionada;
+
+    prefixo.disabled = !manutencaoSelecionada;
+    placa.disabled = !manutencaoSelecionada;
+
+    prefixo.required = manutencaoSelecionada;
+    placa.required = manutencaoSelecionada;
+
+    console.log(
+        "Características da Equipe:",
+        manutencaoSelecionada ? "VISÍVEL" : "OCULTA"
+    );
+
+}
+
+
+
+/*
+=========================================
 INICIALIZAÇÃO
 =========================================
 */
@@ -162,6 +228,8 @@ document.addEventListener(
                 opcao.addEventListener(
                     "change",
                     function () {
+
+                        atualizarCaracteristicasEquipe();
 
                         /*
                         Esconde tudo antes de mostrar
@@ -511,6 +579,94 @@ document.addEventListener(
 
             }
         );
+
+
+
+        /*
+        =========================================
+        CARACTERÍSTICAS DA EQUIPE
+        PADRONIZAÇÃO DOS CAMPOS
+        =========================================
+        */
+
+        const campoPrefixoEquipe =
+            document.getElementById(
+                "prefixo-equipe"
+            );
+
+        const campoPlacaViatura =
+            document.getElementById(
+                "placa-viatura"
+            );
+
+
+        
+        /*
+        =========================================
+        LETRAS MAIÚSCULAS E CONTADORES
+        =========================================
+        */
+
+        function atualizarContadoresEquipe() {
+
+            const contadorPrefixo =
+                document.getElementById(
+                    "contador-prefixo-equipe"
+                );
+
+            const contadorPlaca =
+                document.getElementById(
+                    "contador-placa-viatura"
+                );
+
+            if (campoPrefixoEquipe && contadorPrefixo) {
+                contadorPrefixo.textContent =
+                    `${campoPrefixoEquipe.value.length}/15`;
+            }
+
+            if (campoPlacaViatura && contadorPlaca) {
+                contadorPlaca.textContent =
+                    `${campoPlacaViatura.value.length}/7`;
+            }
+
+        }
+
+
+        [campoPrefixoEquipe, campoPlacaViatura].forEach(
+            function (campo) {
+
+                if (!campo) {
+                    return;
+                }
+
+                campo.addEventListener(
+                    "input",
+                    function () {
+
+                        this.value =
+                            this.value.toLocaleUpperCase("pt-BR");
+
+                        atualizarContadoresEquipe();
+                        atualizarValidacaoRegistro();
+                        atualizarBotoes();
+                        atualizarPreviaNomeArquivo();
+                        salvarDadosRegistro();
+
+                    }
+                );
+
+            }
+        );
+
+
+        /*
+        -----------------------------------------
+        INICIALIZA OS CONTADORES
+        -----------------------------------------
+        */
+
+        atualizarContadoresEquipe();
+
 
 
         /*
@@ -912,6 +1068,17 @@ document.addEventListener(
 
         /*
         =========================================
+        ATUALIZA CARACTERÍSTICAS DA EQUIPE
+        APÓS RESTAURAR O REGISTRO
+        =========================================
+        */
+
+        atualizarCaracteristicasEquipe();
+
+
+
+        /*
+        =========================================
         MONTA A INTERFACE
         =========================================
 
@@ -962,12 +1129,51 @@ ATUALIZAR VALIDAÇÃO DO REGISTRO
 
 function atualizarValidacaoRegistro() {
 
+    /*
+    =========================================
+    VALIDAÇÃO DAS CARACTERÍSTICAS DA EQUIPE
+    =========================================
+    */
+
+    const categoriaSelecionada =
+        document.querySelector(
+            'input[name="tipo-servico"]:checked'
+        )?.value || "";
+
+    const manutencaoSelecionada =
+        categoriaSelecionada === "manutencao";
+
+    const campoPrefixo =
+        document.getElementById("prefixo-equipe");
+
+    const campoPlaca =
+        document.getElementById("placa-viatura");
+
+    const caracteristicasEquipeValidas =
+        !manutencaoSelecionada
+        ||
+        (
+            (campoPrefixo?.value.trim().length || 0) > 0
+            &&
+            (campoPlaca?.value.trim().length || 0) > 0
+        );
+
+
+    /*
+    =========================================
+    VALIDAÇÃO GERAL DO REGISTRO
+    =========================================
+    */
+
     const registroValido =
         obterSeccionalSelecionada() !== ""
         &&
         classificacaoPreenchida()
         &&
-        nomeAcaoPreenchido();
+        nomeAcaoPreenchido()
+        &&
+        caracteristicasEquipeValidas;
+
 
 
 
@@ -1082,6 +1288,16 @@ async function salvarDadosRegistro() {
             localidade
                 ? localidade.value
                 : "",
+
+        
+        prefixoEquipe:
+            document.getElementById("prefixo-equipe")
+                ?.value.trim().toUpperCase() || "",
+
+        placaViatura:
+            document.getElementById("placa-viatura")
+                ?.value.trim().toUpperCase() || "",
+
 
         nomeAcao:
             nomeAcao
@@ -1539,6 +1755,69 @@ async function restaurarDadosRegistro() {
     }
 
 
+/*
+=========================================
+RESTAURA CARACTERÍSTICAS DA EQUIPE
+=========================================
+*/
+
+const campoPrefixoRestauracao =
+    document.getElementById("prefixo-equipe");
+
+const campoPlacaRestauracao =
+    document.getElementById("placa-viatura");
+
+if (campoPrefixoRestauracao) {
+
+    campoPrefixoRestauracao.value =
+        String(registro.prefixoEquipe || "")
+            .toUpperCase()
+            .slice(0, 15);
+
+}
+
+if (campoPlacaRestauracao) {
+
+    campoPlacaRestauracao.value =
+        String(registro.placaViatura || "")
+            .toUpperCase()
+            .slice(0, 7);
+
+}
+
+
+    /*
+    =========================================
+    ATUALIZA CONTADORES
+    =========================================
+    */
+
+    const contadorPrefixo =
+        document.getElementById(
+            "contador-prefixo-equipe"
+        );
+
+    const contadorPlaca =
+        document.getElementById(
+            "contador-placa-viatura"
+        );
+
+    if (contadorPrefixo) {
+
+        contadorPrefixo.textContent =
+            `${campoPrefixoRestauracao?.value.length || 0}/15`;
+
+    }
+
+    if (contadorPlaca) {
+
+        contadorPlaca.textContent =
+            `${campoPlacaRestauracao?.value.length || 0}/7`;
+
+    }
+
+
+
     /*
     =========================================
     MIGRA / SINCRONIZA
@@ -1560,6 +1839,8 @@ async function restaurarDadosRegistro() {
     */
 
     atualizarContadorNomeAcao();
+
+    atualizarCaracteristicasEquipe();
 
     atualizarValidacaoRegistro();
 
@@ -1898,6 +2179,7 @@ function atualizarContadorNomeAcao() {
 }
 
 
+
 /*
 =========================================
 MONTAR NOME DO ARQUIVO PDF
@@ -1914,7 +2196,6 @@ function montarNomeArquivoPDF() {
             "nome-acao"
         );
 
-
     if (
         !classificacao ||
         !campoNomeAcao
@@ -1924,17 +2205,14 @@ function montarNomeArquivoPDF() {
 
     }
 
-
     const nomeAcao =
         campoNomeAcao.value.trim();
-
 
     if (!nomeAcao) {
 
         return "";
 
     }
-
 
     let prefixo = "";
 
@@ -1991,6 +2269,55 @@ function montarNomeArquivoPDF() {
 
         }
 
+
+        /*
+        -----------------------------------------
+        CARACTERÍSTICAS DA EQUIPE
+        -----------------------------------------
+        */
+
+        const campoPrefixoEquipe =
+            document.getElementById(
+                "prefixo-equipe"
+            );
+
+        const campoPlacaViatura =
+            document.getElementById(
+                "placa-viatura"
+            );
+
+        const prefixoEquipe =
+            campoPrefixoEquipe
+                ?.value.trim().toUpperCase() || "";
+
+        const placaViatura =
+            campoPlacaViatura
+                ?.value.trim().toUpperCase() || "";
+
+
+        /*
+        -----------------------------------------
+        ADICIONA PREFIXO E PLACA AO NOME
+        -----------------------------------------
+        */
+
+        if (
+            prefixo &&
+            prefixoEquipe &&
+            placaViatura
+        ) {
+
+            prefixo +=
+                " - "
+                +
+                prefixoEquipe
+                +
+                " - "
+                +
+                placaViatura;
+
+        }
+
     }
 
 
@@ -2032,12 +2359,24 @@ function montarNomeArquivoPDF() {
     }
 
 
+    /*
+    =========================================
+    VALIDA PREFIXO
+    =========================================
+    */
+
     if (!prefixo) {
 
         return "";
 
     }
 
+
+    /*
+    =========================================
+    NOME FINAL DO ARQUIVO
+    =========================================
+    */
 
     return (
         prefixo
@@ -2063,17 +2402,14 @@ function atualizarPreviaNomeArquivo() {
             "previa-nome-arquivo"
         );
 
-
     if (!previa) {
 
         return;
 
     }
 
-
     const nomeArquivo =
         montarNomeArquivoPDF();
-
 
     if (!nomeArquivo) {
 
@@ -2084,11 +2420,11 @@ function atualizarPreviaNomeArquivo() {
 
     }
 
-
     previa.textContent =
         nomeArquivo + ".pdf";
 
 }
+
 
 
 

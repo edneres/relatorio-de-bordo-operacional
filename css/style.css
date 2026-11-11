@@ -1437,3 +1437,87 @@ input[type="radio"]:checked
     text-justify: inter-word;
     line-height: 1.6;
 }
+
+
+/*
+=========================================
+CARACTERÍSTICAS DA EQUIPE
+=========================================
+*/
+
+.caracteristicas-equipe {
+    background: #ffffff;
+    border: 1px solid #dce5f0;
+    border-radius: 15px;
+    padding: 22px;
+    margin: 26px 0;
+}
+
+
+.caracteristicas-equipe h3 {
+    margin: 0 0 18px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #071b3d;
+}
+
+
+.caracteristicas-equipe .campo-classificacao {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.caracteristicas-equipe .campo-classificacao:last-child {
+    margin-bottom: 0;
+}
+
+.caracteristicas-equipe label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #071b3d;
+}
+
+.caracteristicas-equipe input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px 14px;
+    border: 1px solid #dce5f0;
+    border-radius: 9px;
+    background: #f2f6fa;
+    color: #071b3d;
+    font-size: 14px;
+    font-family: inherit;
+    text-transform: uppercase;
+}
+
+.caracteristicas-equipe input:focus {
+    outline: none;
+    border-color: #4676b5;
+}
+
+.caracteristicas-equipe .obrigatorio {
+    color: #dc2626;
+}
+
+
+/*
+=========================================
+CONTADORES - CARACTERÍSTICAS DA EQUIPE
+=========================================
+*/
+
+.cabecalho-campo-equipe {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.cabecalho-campo-equipe span[id^="contador-"] {
+    font-size: 12px;
+    font-weight: 400;
+    color: #58729b;
+    white-space: nowrap;
+}

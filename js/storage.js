@@ -781,6 +781,12 @@ async function salvarClassificacaoLocal(
 
             localidade:
                 classificacao?.localidade || "",
+            
+            prefixoEquipe:
+                classificacao?.prefixoEquipe || "",
+
+            placaViatura:
+                classificacao?.placaViatura || "",
 
             nomeAcao:
                 classificacao?.nomeAcao || ""
@@ -911,6 +917,12 @@ async function carregarClassificacaoLocal() {
 
                     localidade:
                         registro.localidade || "",
+
+                    prefixoEquipe:
+                        registro.prefixoEquipe || "",
+
+                    placaViatura:
+                        registro.placaViatura || "",
 
                     nomeAcao:
                         registro.nomeAcao || ""
