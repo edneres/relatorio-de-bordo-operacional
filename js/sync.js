@@ -17,7 +17,7 @@ Responsabilidades:
 
 
 const URL_API =
-    "https://site-relatorio-api.rboregionalleste.workers.dev";
+    "https://rbo-relatorios-api.rbo-regional-leste-ma.workers.dev";
 
 
 let sincronizacaoEmAndamento = false;
