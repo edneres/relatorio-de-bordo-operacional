@@ -52,9 +52,21 @@ async function enviarPDFWorker(registroPDF) {
         registroPDF.id || ""
     );
 
+    const nomesSeccionais = {
+        "Caxias": "Seccional Caxias",
+        "Chapadinha": "Seccional Chapadinha",
+        "Timon": "Seccional Timon",
+        "São João dos Patos": "Seccional São João dos Patos"
+    };
+
+    const seccional =
+        nomesSeccionais[registroPDF.seccional] ||
+        registroPDF.seccional ||
+        "";
+
     formulario.append(
         "seccional",
-        registroPDF.seccional || ""
+        seccional
     );
 
     formulario.append(

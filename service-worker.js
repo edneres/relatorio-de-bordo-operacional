@@ -12,7 +12,7 @@ VERSÃO DO APLICATIVO
 =========================================
 */
 
-const VERSAO_APP = "2.7.1";
+const VERSAO_APP = "2.8.1";
 
 const NOME_CACHE =
     `relatorio-bordo-operacional-v${VERSAO_APP}`;
@@ -40,6 +40,7 @@ const ARQUIVOS_OFFLINE = [
     "./js/gps.js",
     "./js/camera.js",
     "./js/pdf.js",
+    "./js/sync.js",
     "./js/app.js",
 
     "./lib/jspdf.umd.min.js",
