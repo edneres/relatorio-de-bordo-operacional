@@ -69,6 +69,8 @@
         href="css/style.css"
     >
 
+    <script src="js/versao.js"></script>
+
     <meta
         name="apple-mobile-web-app-capable"
         content="yes"
@@ -825,13 +827,16 @@
 
             <script>
 
-                const VERSAO_APP = "v2.8.1";
+                /*
+                A versão vem de js/versao.js,
+                carregado no <head>.
+                */
 
                 document.getElementById("versao-app").textContent =
-                    VERSAO_APP;
+                    "v" + VERSAO_APP;
 
                 console.log(
-                    `%cRelatório de Bordo Operacional — ${VERSAO_APP}`,
+                    `%cRelatório de Bordo Operacional — v${VERSAO_APP}`,
                     "font-weight: bold; font-size: 14px;"
                 );
 
@@ -1086,6 +1091,12 @@
         =========================================
         REGISTRO DO SERVICE WORKER
         =========================================
+
+        updateViaCache: "none" faz o navegador
+        sempre buscar na rede o service-worker.js
+        e o js/versao.js ao verificar atualizações,
+        sem usar o cache HTTP do GitHub Pages
+        (que pode atrasar até 10 minutos).
         */
 
         if (
@@ -1099,7 +1110,10 @@
                     navigator
                         .serviceWorker
                         .register(
-                            "./service-worker.js"
+                            "./service-worker.js",
+                            {
+                                updateViaCache: "none"
+                            }
                         )
 
                         .then(

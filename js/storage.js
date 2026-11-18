@@ -961,32 +961,77 @@ EXCLUIR CLASSIFICAÇÃO
 
 async function excluirClassificacaoLocal() {
 
-    const db = await abrirBanco();
+    const banco =
+        await abrirBanco();
 
-    return new Promise(function (resolve, reject) {
 
-        const transaction =
-            db.transaction(
+    return new Promise(function (
+        resolve,
+        reject
+    ) {
+
+        const transacao =
+            banco.transaction(
                 "configuracao",
                 "readwrite"
             );
 
+
         const store =
-            transaction.objectStore(
+            transacao.objectStore(
                 "configuracao"
             );
 
-        const request =
-            store.delete("classificacao");
 
-        request.onsuccess = function () {
-            resolve();
-        };
+        store.delete(
+            "classificacao"
+        );
 
-        request.onerror = function () {
-            reject(request.error);
-        };
+
+        transacao.oncomplete =
+            function () {
+
+                banco.close();
+
+                resolve();
+
+            };
+
+
+        transacao.onerror =
+            function () {
+
+                const erro =
+                    transacao.error;
+
+                banco.close();
+
+                reject(
+                    erro
+                );
+
+            };
+
+
+        transacao.onabort =
+            function () {
+
+                const erro =
+                    transacao.error ||
+                    new Error(
+                        "Não foi possível excluir a classificação."
+                    );
+
+                banco.close();
+
+                reject(
+                    erro
+                );
+
+            };
+
     });
+
 }
 
 /*

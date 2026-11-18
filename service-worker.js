@@ -10,9 +10,18 @@ RELATÓRIO DE BORDO OPERACIONAL
 =========================================
 VERSÃO DO APLICATIVO
 =========================================
+
+A versão é lida de js/versao.js.
+
+O navegador também verifica alterações
+nos arquivos importados. Portanto, alterar
+apenas js/versao.js já dispara a
+atualização do Service Worker.
 */
 
-const VERSAO_APP = "2.8.1";
+importScripts(
+    "./js/versao.js"
+);
 
 const NOME_CACHE =
     `relatorio-bordo-operacional-v${VERSAO_APP}`;
@@ -36,6 +45,7 @@ const ARQUIVOS_OFFLINE = [
     "./icons/app-icon-192.png",
     "./icons/app-icon-512.png",
 
+    "./js/versao.js",
     "./js/storage.js",
     "./js/gps.js",
     "./js/camera.js",
