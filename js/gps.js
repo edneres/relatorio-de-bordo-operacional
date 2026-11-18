@@ -197,7 +197,7 @@ Nenhum erro será apresentado ao usuário.
 =========================================
 */
 
-async function buscarMunicipioUF(
+async function buscarMunicipioUFOnline(
     latitude,
     longitude
 ) {
@@ -435,5 +435,69 @@ async function buscarMunicipioUF(
         );
 
     }
+
+}
+
+
+/*
+=========================================
+BUSCAR MUNICÍPIO E UF
+=========================================
+
+1. Consulta a base OFICIAL do IBGE salva
+   no aparelho (funciona sem internet).
+
+2. Somente se a coordenada estiver fora
+   do MA/PI, tenta o Nominatim (online).
+
+Nunca gera erro para o usuário.
+=========================================
+*/
+
+async function buscarMunicipioUF(
+    latitude,
+    longitude
+) {
+
+    /*
+    -----------------------------------------
+    1. BASE LOCAL (IBGE)
+    -----------------------------------------
+    */
+
+    if (
+        typeof identificarMunicipioOffline ===
+        "function"
+    ) {
+
+        const local =
+            await identificarMunicipioOffline(
+                latitude,
+                longitude
+            );
+
+
+        if (
+            local.municipio &&
+            local.uf
+        ) {
+
+            return local;
+
+        }
+
+    }
+
+
+    /*
+    -----------------------------------------
+    2. FORA DA ÁREA COBERTA: ONLINE
+    -----------------------------------------
+    */
+
+    return await buscarMunicipioUFOnline(
+        latitude,
+        longitude
+    );
 
 }

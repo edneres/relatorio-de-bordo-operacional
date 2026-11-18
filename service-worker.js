@@ -47,11 +47,14 @@ const ARQUIVOS_OFFLINE = [
 
     "./js/versao.js",
     "./js/storage.js",
+    "./js/municipios.js",
     "./js/gps.js",
     "./js/camera.js",
     "./js/pdf.js",
     "./js/sync.js",
     "./js/app.js",
+
+    "./data/municipios.json",
 
     "./lib/jspdf.umd.min.js",
 
