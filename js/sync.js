@@ -25,6 +25,39 @@ let sincronizacaoEmAndamento = false;
 
 /*
 =========================================================
+TEMPOS DE ENVIO E NOVAS TENTATIVAS
+=========================================================
+
+TEMPO_LIMITE_ENVIO_MS:
+Tempo máximo de um envio. Com sinal ruim,
+uma conexão pode ficar "pendurada" sem
+responder; o limite libera a fila.
+
+INTERVALOS_NOVA_TENTATIVA_MS:
+Se algum envio falhar, a fila é tentada
+novamente de forma automática, com espera
+crescente: 15 s, 30 s, 1 min, 2 min e,
+a partir daí, a cada 5 min.
+=========================================================
+*/
+
+const TEMPO_LIMITE_ENVIO_MS = 120000;
+
+const INTERVALOS_NOVA_TENTATIVA_MS = [
+    15000,
+    30000,
+    60000,
+    120000,
+    300000
+];
+
+let indiceNovaTentativa = 0;
+
+let temporizadorNovaTentativa = null;
+
+
+/*
+=========================================================
 ENVIAR UM PDF AO WORKER
 =========================================================
 */
@@ -116,14 +149,60 @@ async function enviarPDFWorker(registroPDF) {
     o boundary do multipart/form-data.
     */
 
-    const resposta =
-        await fetch(
-            URL_API + "/upload",
-            {
-                method: "POST",
-                body: formulario
-            }
+    /*
+    Tempo limite do envio.
+    */
+
+    const controlador =
+        new AbortController();
+
+    const temporizador =
+        setTimeout(
+            function () {
+
+                controlador.abort();
+
+            },
+            TEMPO_LIMITE_ENVIO_MS
         );
+
+
+    let resposta;
+
+
+    try {
+
+        resposta =
+            await fetch(
+                URL_API + "/upload",
+                {
+                    method: "POST",
+                    body: formulario,
+                    signal: controlador.signal
+                }
+            );
+
+    }
+    catch (erro) {
+
+        if (erro.name === "AbortError") {
+
+            throw new Error(
+                "Tempo de envio esgotado."
+            );
+
+        }
+
+        throw erro;
+
+    }
+    finally {
+
+        clearTimeout(
+            temporizador
+        );
+
+    }
 
 
     let dados;
@@ -501,6 +580,14 @@ async function sincronizarFilaPDFs() {
     sincronizacaoEmAndamento = true;
 
 
+    /*
+    Indica se algum PDF ficou sem enviar,
+    para agendar nova tentativa.
+    */
+
+    let houveFalha = false;
+
+
     try {
 
         console.log(
@@ -594,14 +681,24 @@ async function sincronizarFilaPDFs() {
                     "Conexão perdida. Sincronização interrompida."
                 );
 
+                houveFalha = true;
+
                 break;
 
             }
 
 
-            await sincronizarPDF(
-                registroPDF
-            );
+            const enviado =
+                await sincronizarPDF(
+                    registroPDF
+                );
+
+
+            if (!enviado) {
+
+                houveFalha = true;
+
+            }
 
         }
 
@@ -613,12 +710,103 @@ async function sincronizarFilaPDFs() {
             erro
         );
 
+        houveFalha = true;
+
     }
     finally {
 
         sincronizacaoEmAndamento = false;
 
     }
+
+
+    /*
+    -----------------------------------------
+    NOVA TENTATIVA AUTOMÁTICA
+    -----------------------------------------
+    */
+
+    if (houveFalha) {
+
+        agendarNovaTentativa();
+
+    }
+    else {
+
+        indiceNovaTentativa = 0;
+
+    }
+
+}
+
+
+/*
+=========================================================
+AGENDAR NOVA TENTATIVA
+=========================================================
+
+Usado quando algum envio falhou, por
+exemplo: aparelho "conectado" ao Wi-Fi ou
+aos dados móveis, mas sem internet real.
+=========================================================
+*/
+
+function agendarNovaTentativa() {
+
+    clearTimeout(
+        temporizadorNovaTentativa
+    );
+
+
+    const espera =
+        INTERVALOS_NOVA_TENTATIVA_MS[
+            Math.min(
+                indiceNovaTentativa,
+                INTERVALOS_NOVA_TENTATIVA_MS.length - 1
+            )
+        ];
+
+
+    indiceNovaTentativa++;
+
+
+    console.log(
+        `Nova tentativa de envio em ${Math.round(espera / 1000)} s.`
+    );
+
+
+    temporizadorNovaTentativa =
+        setTimeout(
+            function () {
+
+                sincronizarFilaPDFs();
+
+            },
+            espera
+        );
+
+}
+
+
+/*
+=========================================================
+SINCRONIZAR AGORA
+=========================================================
+
+Cancela a espera de uma nova tentativa
+agendada e sincroniza imediatamente.
+=========================================================
+*/
+
+function sincronizarAgora() {
+
+    clearTimeout(
+        temporizadorNovaTentativa
+    );
+
+    indiceNovaTentativa = 0;
+
+    sincronizarFilaPDFs();
 
 }
 
@@ -638,7 +826,36 @@ window.addEventListener(
         );
 
 
-        sincronizarFilaPDFs();
+        sincronizarAgora();
+
+    }
+);
+
+
+/*
+=========================================================
+APLICATIVO VOLTOU A FICAR VISÍVEL
+=========================================================
+
+No celular, o aplicativo em segundo plano
+fica pausado e pode perder o aviso de que a
+internet voltou. Ao reabri-lo, a fila é
+verificada imediatamente.
+=========================================================
+*/
+
+document.addEventListener(
+    "visibilitychange",
+    function () {
+
+        if (
+            document.visibilityState ===
+            "visible"
+        ) {
+
+            sincronizarAgora();
+
+        }
 
     }
 );
@@ -670,6 +887,9 @@ window.addEventListener(
 
         /*
         Depois tenta realizar a sincronização.
+
+        Pequeno atraso apenas para não disputar
+        processamento com a montagem da tela.
         */
 
         setTimeout(
@@ -680,7 +900,7 @@ window.addEventListener(
                 await atualizarRelatoriosPendentes();
 
             },
-            1500
+            500
         );
 
     }
