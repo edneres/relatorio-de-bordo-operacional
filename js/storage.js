@@ -779,6 +779,9 @@ async function salvarClassificacaoLocal(
             instalacao:
                 classificacao?.instalacao || "",
 
+            localColeta:
+                classificacao?.localColeta || "",
+
             localidade:
                 classificacao?.localidade || "",
             
@@ -914,6 +917,9 @@ async function carregarClassificacaoLocal() {
 
                     instalacao:
                         registro.instalacao || "",
+
+                    localColeta:
+                        registro.localColeta || "",
 
                     localidade:
                         registro.localidade || "",

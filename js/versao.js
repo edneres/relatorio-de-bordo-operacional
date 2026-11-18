@@ -14,4 +14,4 @@ SOMENTE este número.
 =========================================
 */
 
-const VERSAO_APP = "2.8.8";
+const VERSAO_APP = "2.8.9";

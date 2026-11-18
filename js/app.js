@@ -236,6 +236,13 @@ document.addEventListener(
                     "change",
                     function () {
 
+                        /*
+                        Codó / Caxias dependem da
+                        seccional selecionada.
+                        */
+
+                        atualizarCamposColetaLeitura();
+
                         atualizarValidacaoRegistro();
 
                         atualizarBotoes();
@@ -314,6 +321,13 @@ document.addEventListener(
 
                         localidade.value = "";
 
+
+                        /*
+                        Oculta Codó / Caxias e o
+                        Nº instalação.
+                        */
+
+                        atualizarCamposColetaLeitura();
 
                         /*
                         EXPANSÃO
@@ -404,10 +418,6 @@ document.addEventListener(
                             "oculto"
                         );
 
-                        campoInstalacao.classList.add(
-                            "oculto"
-                        );
-
                         campoLocalidade.classList.add(
                             "oculto"
                         );
@@ -418,6 +428,32 @@ document.addEventListener(
                         numeroInstalacao.value = "";
 
                         localidade.value = "";
+
+
+                        /*
+                        Limpa o local da coleta
+                        (Codó / Caxias).
+                        */
+
+                        document.querySelectorAll(
+                            'input[name="local-coleta"]'
+                        ).forEach(
+                            function (opcaoLocal) {
+
+                                opcaoLocal.checked = false;
+
+                            }
+                        );
+
+
+                        /*
+                        Exibe / oculta Codó, Caxias e
+                        o Nº instalação conforme a
+                        seccional e a subopção.
+                        */
+
+                        const instalacaoVisivel =
+                            atualizarCamposColetaLeitura();
 
 
                         /*
@@ -450,18 +486,19 @@ document.addEventListener(
 
                         /*
                         Coleta de leitura
+
+                        Seccional Caxias: aguarda a
+                        escolha de Codó / Caxias.
+
+                        Demais seccionais: o Nº
+                        instalação já está visível.
                         */
 
                         if (
                             this.value ===
-                            "coleta-leitura"
+                                "coleta-leitura" &&
+                            instalacaoVisivel
                         ) {
-
-                            campoInstalacao
-                                .classList
-                                .remove(
-                                    "oculto"
-                                );
 
                             setTimeout(
                                 function () {
@@ -553,7 +590,61 @@ document.addEventListener(
             }
         );
 
-        
+
+
+        /*
+        =========================================
+        LOCAL DA COLETA (CODÓ / CAXIAS)
+        =========================================
+        */
+
+        document.querySelectorAll(
+            'input[name="local-coleta"]'
+        ).forEach(
+            function (opcao) {
+
+                opcao.addEventListener(
+                    "change",
+                    function () {
+
+                        /*
+                        Trocar o local exige informar
+                        novamente a instalação.
+                        */
+
+                        numeroInstalacao.value = "";
+
+
+                        const instalacaoVisivel =
+                            atualizarCamposColetaLeitura();
+
+
+                        if (instalacaoVisivel) {
+
+                            setTimeout(
+                                function () {
+
+                                    numeroInstalacao.focus();
+
+                                },
+                                100
+                            );
+
+                        }
+
+
+                        atualizarValidacaoRegistro();
+
+                        atualizarBotoes();
+
+                        salvarDadosRegistro();
+
+                    }
+                );
+
+            }
+        );
+
         /*
         =========================================
         LOCALIDADE
@@ -1163,6 +1254,164 @@ function obterSeccionalSelecionada() {
 
 
 
+/*
+=========================================
+COLETA DE LEITURA
+LOCAL (CODÓ / CAXIAS) E Nº INSTALAÇÃO
+=========================================
+
+Regras:
+
+- Seccional Caxias + Coleta de leitura:
+  exibe Codó / Caxias. O Nº instalação
+  aparece abaixo do local escolhido.
+
+- Outras seccionais + Coleta de leitura:
+  o Nº instalação aparece diretamente
+  abaixo de "Coleta de leitura".
+
+- Sem Coleta de leitura: tudo oculto.
+
+Retorna true quando o Nº instalação
+está visível.
+=========================================
+*/
+
+function atualizarCamposColetaLeitura() {
+
+    const tipo =
+        document.querySelector(
+            'input[name="tipo-servico"]:checked'
+        )?.value || "";
+
+    const subtipo =
+        document.querySelector(
+            'input[name="subtipo-servico"]:checked'
+        )?.value || "";
+
+    const subopcoesColeta =
+        document.getElementById(
+            "subopcoes-coleta"
+        );
+
+    const campoInstalacao =
+        document.getElementById(
+            "campo-instalacao"
+        );
+
+    const opcaoColeta =
+        document.querySelector(
+            'input[name="subtipo-servico"][value="coleta-leitura"]'
+        );
+
+
+    if (
+        !subopcoesColeta ||
+        !campoInstalacao ||
+        !opcaoColeta
+    ) {
+
+        return false;
+
+    }
+
+
+    const coletaSelecionada =
+        tipo === "leiturista" &&
+        subtipo === "coleta-leitura";
+
+
+    const exigeLocal =
+        coletaSelecionada &&
+        obterSeccionalSelecionada() === "Caxias";
+
+
+    /*
+    -----------------------------------------
+    FORA DA SECCIONAL CAXIAS:
+    DESMARCA CODÓ / CAXIAS
+    -----------------------------------------
+    */
+
+    if (!exigeLocal) {
+
+        document.querySelectorAll(
+            'input[name="local-coleta"]'
+        ).forEach(
+            function (opcao) {
+
+                opcao.checked = false;
+
+            }
+        );
+
+    }
+
+
+    subopcoesColeta.classList.toggle(
+        "oculto",
+        !exigeLocal
+    );
+
+
+    const localSelecionado =
+        document.querySelector(
+            'input[name="local-coleta"]:checked'
+        );
+
+
+    let mostrarInstalacao = false;
+
+
+    /*
+    -----------------------------------------
+    POSICIONA O Nº INSTALAÇÃO
+    -----------------------------------------
+    */
+
+    if (
+        coletaSelecionada &&
+        !exigeLocal
+    ) {
+
+        opcaoColeta
+            .closest("label")
+            .insertAdjacentElement(
+                "afterend",
+                campoInstalacao
+            );
+
+        mostrarInstalacao = true;
+
+    }
+
+    else if (
+        exigeLocal &&
+        localSelecionado
+    ) {
+
+        localSelecionado
+            .closest("label")
+            .insertAdjacentElement(
+                "afterend",
+                campoInstalacao
+            );
+
+        mostrarInstalacao = true;
+
+    }
+
+
+    campoInstalacao.classList.toggle(
+        "oculto",
+        !mostrarInstalacao
+    );
+
+
+    return mostrarInstalacao;
+
+}
+
 
 /*
 =========================================
@@ -1342,6 +1591,11 @@ async function salvarDadosRegistro() {
             numeroInstalacao
                 ? numeroInstalacao.value
                 : "",
+
+        localColeta:
+            document.querySelector(
+                'input[name="local-coleta"]:checked'
+            )?.value || "",        
 
         localidade:
             localidade
@@ -1729,8 +1983,12 @@ async function restaurarDadosRegistro() {
 
     /*
     =========================================
-    RESTAURA INSTALAÇÃO
+    RESTAURA INSTALAÇÃO E LOCAL DA COLETA
     =========================================
+
+    A seccional já foi restaurada acima,
+    então atualizarCamposColetaLeitura()
+    consegue decidir onde exibir o campo.
     */
 
     if (
@@ -1741,24 +1999,40 @@ async function restaurarDadosRegistro() {
             "coleta-leitura"
     ) {
 
-        campoInstalacao
-            .classList
-            .remove("oculto");
-
         numeroInstalacao.value =
             registro.instalacao || "";
+
+
+        if (registro.localColeta) {
+
+            const opcaoLocal =
+                Array.from(
+                    document.querySelectorAll(
+                        'input[name="local-coleta"]'
+                    )
+                ).find(
+                    opcao =>
+                        opcao.value === registro.localColeta
+                );
+
+            if (opcaoLocal) {
+
+                opcaoLocal.checked = true;
+
+            }
+
+        }
 
     }
 
     else {
 
-        campoInstalacao
-            .classList
-            .add("oculto");
-
         numeroInstalacao.value = "";
 
     }
+
+
+    atualizarCamposColetaLeitura();
 
 
     /*
@@ -1973,6 +2247,38 @@ function obterClassificacaoRegistro() {
             "coleta-leitura"
         ) {
 
+            /*
+            Seccional Caxias exige a escolha
+            do local: Codó ou Caxias.
+            */
+
+            const exigeLocal =
+                obterSeccionalSelecionada() ===
+                "Caxias";
+
+
+            const opcaoLocal =
+                document.querySelector(
+                    'input[name="local-coleta"]:checked'
+                );
+
+
+            const localColeta =
+                opcaoLocal
+                    ? opcaoLocal.value
+                    : "";
+
+
+            if (
+                exigeLocal &&
+                !localColeta
+            ) {
+
+                return null;
+
+            }
+
+
             const instalacao =
                 campoInstalacao
                     ? campoInstalacao.value.trim()
@@ -1992,6 +2298,11 @@ function obterClassificacaoRegistro() {
 
                 subcategoria:
                     "Coleta de leitura",
+
+                localColeta:
+                    exigeLocal
+                        ? localColeta
+                        : null,
 
                 incidente: null,
 
@@ -2360,7 +2671,25 @@ function montarNomeArquivoPDF() {
         ) {
 
             prefixo =
-                "Leiturista - Coleta de leitura - Instalação "
+                "Leiturista - Coleta de leitura - ";
+
+
+            /*
+            Codó / Caxias (somente seccional Caxias).
+            */
+
+            if (classificacao.localColeta) {
+
+                prefixo +=
+                    classificacao.localColeta
+                    +
+                    " - ";
+
+            }
+
+
+            prefixo +=
+                "Instalação "
                 +
                 classificacao.instalacao;
 
@@ -4151,6 +4480,29 @@ async function limparRegistroAtual() {
         localidade.value = "";
 
     }
+
+
+    /*
+    =========================================
+    LIMPA LOCAL DA COLETA (CODÓ / CAXIAS)
+    =========================================
+
+    Também devolve o Nº instalação à sua
+    posição original e oculta as opções.
+    */
+
+    document.querySelectorAll(
+        'input[name="local-coleta"]'
+    ).forEach(
+        function (opcao) {
+
+            opcao.checked = false;
+
+        }
+    );
+
+
+    atualizarCamposColetaLeitura();
 
 
     /*
