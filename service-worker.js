@@ -28,6 +28,17 @@ const NOME_CACHE =
 
 
 /*
+Tempo máximo de espera pela internet antes
+de usar a cópia local (em milissegundos).
+
+Evita que o aplicativo demore a abrir em
+campo quando o sinal está muito fraco.
+*/
+
+const TEMPO_LIMITE_REDE_MS = 3000;
+
+
+/*
 Arquivos essenciais para funcionamento
 offline da aplicação.
 */
@@ -223,134 +234,236 @@ self.addEventListener(
         }
 
 
-        /*
-        =========================================
-        NETWORK FIRST + FALLBACK PARA CACHE
-        =========================================
-
-        Com internet:
-
-        1. tenta buscar a versão atual;
-        2. atualiza o cache;
-        3. entrega a versão atual.
-
-        Sem internet:
-
-        1. a rede falha;
-        2. recupera a última versão armazenada;
-        3. o aplicativo continua funcionando.
-        */
-
         event.respondWith(
-
-            fetch(
-                event.request
+            responderRedeComLimite(
+                event
             )
-
-                .then(
-                    function (
-                        respostaRede
-                    ) {
-
-                        /*
-                        Somente respostas válidas
-                        são armazenadas.
-                        */
-
-                        if (
-                            respostaRede &&
-                            respostaRede.status === 200 &&
-                            respostaRede.type !== "error"
-                        ) {
-
-                            const copiaResposta =
-                                respostaRede.clone();
-
-
-                            event.waitUntil(
-
-                                caches
-                                    .open(
-                                        NOME_CACHE
-                                    )
-
-                                    .then(
-                                        function (
-                                            cache
-                                        ) {
-
-                                            return cache.put(
-                                                event.request,
-                                                copiaResposta
-                                            );
-
-                                        }
-                                    )
-
-                            );
-
-                        }
-
-
-                        return respostaRede;
-
-                    }
-                )
-
-                .catch(
-                    function () {
-
-                        /*
-                        Sem internet:
-                        utiliza a cópia local.
-                        */
-
-                        return caches
-                            .match(
-                                event.request
-                            )
-
-                            .then(
-                                function (
-                                    respostaCache
-                                ) {
-
-                                    if (
-                                        respostaCache
-                                    ) {
-
-                                        return respostaCache;
-
-                                    }
-
-
-                                    /*
-                                    Se for uma navegação e não
-                                    houver correspondência exata,
-                                    tenta abrir o index offline.
-                                    */
-
-                                    if (
-                                        event.request.mode ===
-                                        "navigate"
-                                    ) {
-
-                                        return caches.match(
-                                            "./index.html"
-                                        );
-
-                                    }
-
-
-                                    return Response.error();
-
-                                }
-                            );
-
-                    }
-                )
-
         );
 
     }
 );
+
+
+/*
+=========================================
+REDE PRIMEIRO, COM TEMPO LIMITE
+=========================================
+
+Com internet boa:
+
+1. a versão atual chega da rede;
+2. o cache é atualizado;
+3. a versão atual é entregue.
+
+Com sinal fraco (rede demora mais que
+TEMPO_LIMITE_REDE_MS):
+
+1. entrega imediatamente a cópia local;
+2. a busca na rede continua em segundo
+   plano e atualiza o cache para a
+   próxima abertura.
+
+Sem internet:
+
+1. a rede falha;
+2. entrega a cópia local;
+3. o aplicativo continua funcionando.
+
+Se não existir cópia local, aguarda a
+rede pelo tempo que for necessário.
+=========================================
+*/
+
+async function responderRedeComLimite(
+    event
+) {
+
+    const requisicao =
+        event.request;
+
+
+    /*
+    -----------------------------------------
+    BUSCA NA REDE (E ATUALIZA O CACHE)
+    -----------------------------------------
+    */
+
+    const promessaRede =
+        fetch(
+            requisicao
+        )
+
+            .then(
+                async function (respostaRede) {
+
+                    /*
+                    Somente respostas válidas
+                    são armazenadas.
+                    */
+
+                    if (
+                        respostaRede &&
+                        respostaRede.status === 200 &&
+                        respostaRede.type !== "error"
+                    ) {
+
+                        const copiaResposta =
+                            respostaRede.clone();
+
+                        const cache =
+                            await caches.open(
+                                NOME_CACHE
+                            );
+
+                        await cache.put(
+                            requisicao,
+                            copiaResposta
+                        );
+
+                    }
+
+
+                    return respostaRede;
+
+                }
+            );
+
+
+    /*
+    Mantém o Service Worker ativo até a
+    atualização do cache terminar, mesmo
+    que a cópia local já tenha sido entregue.
+    */
+
+    event.waitUntil(
+        promessaRede.catch(
+            function () {}
+        )
+    );
+
+
+    /*
+    -----------------------------------------
+    1. TENTA A REDE DENTRO DO TEMPO LIMITE
+    -----------------------------------------
+    */
+
+    let temporizador;
+
+
+    const promessaTempoLimite =
+        new Promise(
+            function (resolve) {
+
+                temporizador =
+                    setTimeout(
+                        function () {
+
+                            resolve(null);
+
+                        },
+                        TEMPO_LIMITE_REDE_MS
+                    );
+
+            }
+        );
+
+
+    try {
+
+        const respostaRapida =
+            await Promise.race([
+                promessaRede,
+                promessaTempoLimite
+            ]);
+
+
+        if (respostaRapida) {
+
+            return respostaRapida;
+
+        }
+
+    }
+
+    catch (erro) {
+
+        /*
+        A rede falhou antes do tempo limite.
+        Segue para a cópia local.
+        */
+
+    }
+
+    finally {
+
+        clearTimeout(
+            temporizador
+        );
+
+    }
+
+
+    /*
+    -----------------------------------------
+    2. CÓPIA LOCAL
+    -----------------------------------------
+    */
+
+    const respostaCache =
+        await caches.match(
+            requisicao
+        );
+
+
+    if (respostaCache) {
+
+        return respostaCache;
+
+    }
+
+
+    /*
+    -----------------------------------------
+    3. SEM CÓPIA LOCAL: AGUARDA A REDE
+    -----------------------------------------
+    */
+
+    try {
+
+        return await promessaRede;
+
+    }
+
+    catch (erro) {
+
+        /*
+        Se for uma navegação e não houver
+        correspondência exata, tenta abrir
+        o index offline.
+        */
+
+        if (
+            requisicao.mode ===
+            "navigate"
+        ) {
+
+            const indexOffline =
+                await caches.match(
+                    "./index.html"
+                );
+
+            if (indexOffline) {
+
+                return indexOffline;
+
+            }
+
+        }
+
+
+        return Response.error();
+
+    }
+
+}

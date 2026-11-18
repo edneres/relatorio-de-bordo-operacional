@@ -2,10 +2,21 @@
 =========================================
 OBTER LOCALIZAÇÃO GPS
 =========================================
+
+idadeMaximaMs: idade máxima aceita para
+uma leitura já feita pelo aparelho.
+
+0 (padrão) força uma leitura nova.
+
+Valores maiores permitem reaproveitar a
+leitura recente, sem nova espera.
+=========================================
 */
 
 
-function obterLocalizacaoGPS() {
+function obterLocalizacaoGPS(
+    idadeMaximaMs = 0
+) {
 
     return new Promise(function (resolve) {
 
@@ -62,7 +73,7 @@ function obterLocalizacaoGPS() {
             {
                 enableHighAccuracy: true,
                 timeout: 15000,
-                maximumAge: 0
+                maximumAge: idadeMaximaMs
             }
         );
     });

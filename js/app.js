@@ -1337,6 +1337,15 @@ document.addEventListener(
                 };
 
 
+                /*
+                Completa município/UF de fotografias
+                que ficaram sem essa informação
+                (ex.: tiradas em versões anteriores).
+                */
+
+                await completarMunicipiosFaltantes();
+
+
                 const resultadoPDF =
                     await gerarPDF(
                         nomeArquivo,
@@ -1968,22 +1977,14 @@ async function salvarDadosRegistro() {
 
     /*
     =========================================
-    LOCALSTORAGE
-    =========================================
-    */
-
-    localStorage.setItem(
-        "dadosRegistroFotografico",
-        JSON.stringify(
-            dadosRegistro
-        )
-    );
-
-
-    /*
-    =========================================
     INDEXEDDB
     =========================================
+
+    Único local de armazenamento do registro.
+
+    O localStorage é lido apenas uma vez, em
+    restaurarDadosRegistro(), para migrar
+    dados salvos por versões anteriores.
     */
 
     try {
@@ -2508,12 +2509,21 @@ async function restaurarDadosRegistro() {
     =========================================
     */
 
+    await salvarDadosRegistro();
+
+
+    /*
+    Após gravar no IndexedDB, remove as
+    cópias antigas do localStorage.
+    */
+
     localStorage.removeItem(
         "classificacaoRegistro"
     );
 
-
-    await salvarDadosRegistro();
+    localStorage.removeItem(
+        "dadosRegistroFotografico"
+    );
 
 
     /*
@@ -3252,10 +3262,19 @@ async function adicionarFotografia(
     -----------------------------------------
     OBTÉM GPS
     -----------------------------------------
+
+    Reaproveita a leitura feita ao abrir a
+    câmera, se tiver até 30 segundos.
+
+    Evita uma segunda espera pelo GPS.
+    Se a leitura for mais antiga, o aparelho
+    faz uma nova automaticamente.
     */
 
     const localizacao =
-        await obterLocalizacaoGPS();
+        await obterLocalizacaoGPS(
+            30000
+        );
 
     
     /*
@@ -3521,6 +3540,99 @@ async function adicionarFotografia(
 
 /*
 =========================================
+COMPLETAR MUNICÍPIO / UF FALTANTES
+=========================================
+
+Executado antes de gerar o PDF.
+
+Fotografias com GPS, mas sem município/UF
+(tiradas em versões anteriores ou cuja
+consulta falhou), são completadas pela
+base local do IBGE.
+
+Qualquer falha é silenciosa: o PDF é
+gerado normalmente.
+=========================================
+*/
+
+async function completarMunicipiosFaltantes() {
+
+    let houveAlteracao = false;
+
+
+    for (const fotografia of fotografias) {
+
+        if (
+            !fotografia.gpsObtido ||
+            (
+                fotografia.municipio &&
+                fotografia.uf
+            )
+        ) {
+
+            continue;
+
+        }
+
+
+        try {
+
+            const local =
+                await buscarMunicipioUF(
+                    fotografia.latitude,
+                    fotografia.longitude
+                );
+
+
+            if (
+                !local.municipio &&
+                !local.uf
+            ) {
+
+                continue;
+
+            }
+
+
+            fotografia.municipio =
+                local.municipio;
+
+            fotografia.uf =
+                local.uf;
+
+
+            await atualizarFotografiaLocal(
+                fotografia
+            );
+
+
+            houveAlteracao = true;
+
+        }
+
+        catch (erro) {
+
+            console.warn(
+                "Não foi possível completar município/UF:",
+                erro
+            );
+
+        }
+
+    }
+
+
+    if (houveAlteracao) {
+
+        atualizarInterface();
+
+    }
+
+}
+
+
+/*
+=========================================
 GERAR IDENTIFICADOR
 =========================================
 */
@@ -3731,9 +3843,25 @@ function atualizarBotoes() {
     */
 
     const possuiDadosFormulario =
-        classificacaoPreenchida()
+        obterSeccionalSelecionada() !== ""
         ||
-        nomeAcaoPreenchido();
+        document.querySelector(
+            'input[name="tipo-servico"]:checked'
+        ) !== null
+        ||
+        nomeAcaoPreenchido()
+        ||
+        (
+            document.getElementById(
+                "prefixo-equipe"
+            )?.value.trim() || ""
+        ) !== ""
+        ||
+        (
+            document.getElementById(
+                "placa-viatura"
+            )?.value.trim() || ""
+        ) !== "";
 
 
     if (

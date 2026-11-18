@@ -508,6 +508,46 @@ async function sincronizarFilaPDFs() {
         );
 
 
+        /*
+        -----------------------------------------
+        RECUPERA ENVIOS INTERROMPIDOS
+        -----------------------------------------
+
+        PDFs que ficaram como ENVIANDO porque o
+        aplicativo foi fechado durante o upload
+        voltam para a fila.
+
+        É seguro fazer isso aqui: como
+        sincronizacaoEmAndamento acabou de ser
+        ativado, nenhum envio desta página está
+        em curso.
+        */
+
+        try {
+
+            const recuperados =
+                await restaurarPDFsInterrompidos();
+
+
+            if (recuperados > 0) {
+
+                console.log(
+                    `${recuperados} PDF(s) com envio interrompido voltaram para a fila.`
+                );
+
+            }
+
+        }
+        catch (erro) {
+
+            console.error(
+                "Não foi possível recuperar PDFs interrompidos:",
+                erro
+            );
+
+        }
+
+
         const pendentes =
             await listarPDFsPendentes();
 

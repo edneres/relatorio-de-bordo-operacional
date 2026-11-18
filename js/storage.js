@@ -1698,3 +1698,214 @@ async function excluirPDFFila(
 
 }
 
+
+/*
+=========================================
+DEVOLVER À FILA PDFs INTERROMPIDOS
+=========================================
+
+Um PDF fica com status ENVIANDO enquanto
+o upload acontece. Se o aplicativo for
+fechado nesse momento (ou o aparelho
+desligar), o status nunca é atualizado e
+o PDF deixaria de ser reenviado.
+
+Esta função devolve esses PDFs para
+PENDENTE. Deve ser chamada apenas quando
+nenhuma sincronização estiver em andamento.
+
+Retorna a quantidade de PDFs recuperados.
+=========================================
+*/
+
+async function restaurarPDFsInterrompidos() {
+
+    const banco =
+        await abrirBanco();
+
+
+    return new Promise(function (
+        resolve,
+        reject
+    ) {
+
+        const transacao =
+            banco.transaction(
+                NOME_STORE_PDFS,
+                "readwrite"
+            );
+
+
+        const store =
+            transacao.objectStore(
+                NOME_STORE_PDFS
+            );
+
+
+        const requisicao =
+            store
+                .index("status")
+                .getAll("ENVIANDO");
+
+
+        let quantidade = 0;
+
+
+        requisicao.onsuccess =
+            function () {
+
+                const registros =
+                    requisicao.result || [];
+
+
+                registros.forEach(
+                    function (registro) {
+
+                        registro.status =
+                            "PENDENTE";
+
+                        registro.erro =
+                            "Envio interrompido. Nova tentativa automática.";
+
+                        store.put(
+                            registro
+                        );
+
+                    }
+                );
+
+
+                quantidade =
+                    registros.length;
+
+            };
+
+
+        transacao.oncomplete =
+            function () {
+
+                banco.close();
+
+                resolve(
+                    quantidade
+                );
+
+            };
+
+
+        transacao.onerror =
+            function () {
+
+                const erro =
+                    transacao.error;
+
+                banco.close();
+
+                reject(
+                    erro
+                );
+
+            };
+
+
+        transacao.onabort =
+            function () {
+
+                const erro =
+                    transacao.error ||
+                    new Error(
+                        "Não foi possível recuperar PDFs interrompidos."
+                    );
+
+                banco.close();
+
+                reject(
+                    erro
+                );
+
+            };
+
+    });
+
+}
+
+
+/*
+=========================================
+ARMAZENAMENTO PERSISTENTE
+=========================================
+
+Pede ao navegador para não apagar os
+dados do aplicativo (fotografias em
+andamento e relatórios pendentes) quando
+o aparelho estiver com pouco espaço.
+
+Normalmente não exibe nenhuma pergunta
+ao usuário: o navegador decide sozinho,
+favorecendo aplicativos instalados na
+tela inicial.
+=========================================
+*/
+
+async function solicitarArmazenamentoPersistente() {
+
+    try {
+
+        if (
+            !navigator.storage ||
+            typeof navigator.storage.persist !==
+                "function"
+        ) {
+
+            return false;
+
+        }
+
+
+        if (
+            await navigator.storage.persisted()
+        ) {
+
+            return true;
+
+        }
+
+
+        const concedido =
+            await navigator.storage.persist();
+
+
+        console.log(
+            "Armazenamento persistente:",
+            concedido
+                ? "CONCEDIDO"
+                : "NÃO CONCEDIDO"
+        );
+
+
+        return concedido;
+
+    }
+
+    catch (erro) {
+
+        console.warn(
+            "Não foi possível solicitar armazenamento persistente:",
+            erro
+        );
+
+        return false;
+
+    }
+
+}
+
+
+window.addEventListener(
+    "load",
+    function () {
+
+        solicitarArmazenamentoPersistente();
+
+    }
+);
