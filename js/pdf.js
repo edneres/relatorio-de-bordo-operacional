@@ -1254,6 +1254,14 @@ function carregarImagemArquivo(
 =========================================
 TIMESTAMP
 =========================================
+
+Texto branco alinhado à direita, no canto
+inferior direito da fotografia, SEM fundo.
+
+A legibilidade é garantida por um contorno
+escuro discreto e uma sombra suave, tanto
+sobre fundos claros quanto escuros.
+=========================================
 */
 
 function desenharTimestamp(
@@ -1297,17 +1305,13 @@ function desenharTimestamp(
     -----------------------------------------
     */
 
-    let textoCoordenadas =
-        null;
-
-
     if (
         fotografia.gpsObtido &&
         fotografia.latitude !== null &&
         fotografia.longitude !== null
     ) {
 
-        textoCoordenadas =
+        const textoCoordenadas =
             formatarCoordenadas(
 
                 fotografia.latitude,
@@ -1317,15 +1321,19 @@ function desenharTimestamp(
             );
 
 
-        linhas.push({
+        if (textoCoordenadas) {
 
-            tipo:
-                "coordenadas",
+            linhas.push({
 
-            texto:
-                textoCoordenadas
+                tipo:
+                    "coordenadas",
 
-        });
+                texto:
+                    textoCoordenadas
+
+            });
+
+        }
 
     }
 
@@ -1386,10 +1394,9 @@ function desenharTimestamp(
     if (fotoVertical) {
 
         /*
-            Aumenta o timestamp das fotos em pé
-            para manter aproximadamente o mesmo
-            tamanho visual das fotos deitadas
-            quando inseridas no PDF.
+            Fotos em pé recebem fonte
+            proporcionalmente maior para manter
+            o mesmo tamanho visual no PDF.
         */
 
         tamanhoFonte =
@@ -1399,11 +1406,6 @@ function desenharTimestamp(
 
     }
     else {
-
-        /*
-            Mantém o tamanho atual das fotos
-            horizontais.
-        */
 
         tamanhoFonte =
             Math.round(
@@ -1423,21 +1425,27 @@ function desenharTimestamp(
         );
 
 
+    /*
+    Distância entre as linhas (de base a base).
+    */
+
     const espacamento =
         Math.round(
-            tamanhoFonte * 1.28
+            tamanhoFonte * 1.22
         );
 
 
-    const paddingX =
-        Math.round(
-            tamanhoFonte * 0.55
-        );
+    /*
+    Distância do texto até as bordas
+    direita e inferior da fotografia.
+    */
 
-
-    const paddingY =
-        Math.round(
-            tamanhoFonte * 0.42
+    const margem =
+        Math.max(
+            12,
+            Math.round(
+                largura * 0.025
+            )
         );
 
 
@@ -1447,8 +1455,11 @@ function desenharTimestamp(
     =========================================
     */
 
+    contexto.save();
+
+
     contexto.font =
-        `600 ${tamanhoFonte}px Arial, sans-serif`;
+        `bold ${tamanhoFonte}px Arial, sans-serif`;
 
     contexto.textAlign =
         "right";
@@ -1456,35 +1467,108 @@ function desenharTimestamp(
     contexto.textBaseline =
         "alphabetic";
 
+    contexto.lineJoin =
+        "round";
+
+    contexto.miterLimit =
+        2;
+
 
     /*
     =========================================
-    DESCOBRE LARGURA DO MAIOR TEXTO
+    POSIÇÃO
+    CANTO INFERIOR DIREITO
     =========================================
+
+    A base da última linha fica acima da
+    margem inferior, deixando espaço para
+    letras com descendente (g, p, ç...).
     */
 
-    let maiorLargura =
-        0;
+    const textoX =
+        largura
+        -
+        margem;
+
+
+    const baseUltimaLinha =
+        altura
+        -
+        margem
+        -
+        Math.round(
+            tamanhoFonte * 0.22
+        );
+
+
+    const primeiraLinhaY =
+        baseUltimaLinha
+        -
+        (
+            linhas.length - 1
+        )
+        *
+        espacamento;
+
+
+    /*
+    =========================================
+    1ª PASSAGEM: CONTORNO + SOMBRA
+    =========================================
+
+    Cria uma borda escura fina ao redor
+    das letras, com sombra suave.
+    */
+
+    contexto.strokeStyle =
+        "rgba(0, 0, 0, 0.55)";
+
+    contexto.lineWidth =
+        Math.max(
+            2,
+            tamanhoFonte * 0.10
+        );
+
+    contexto.shadowColor =
+        "rgba(0, 0, 0, 0.60)";
+
+    contexto.shadowBlur =
+        Math.max(
+            2,
+            tamanhoFonte * 0.15
+        );
+
+    contexto.shadowOffsetX =
+        Math.max(
+            1,
+            Math.round(
+                tamanhoFonte * 0.04
+            )
+        );
+
+    contexto.shadowOffsetY =
+        Math.max(
+            1,
+            Math.round(
+                tamanhoFonte * 0.04
+            )
+        );
 
 
     linhas.forEach(
-        function (linha) {
+        function (linha, indice) {
 
-            const medida =
-                contexto.measureText(
-                    linha.texto
-                ).width;
+            contexto.strokeText(
 
+                linha.texto,
 
-            if (
-                medida >
-                maiorLargura
-            ) {
+                textoX,
 
-                maiorLargura =
-                    medida;
+                primeiraLinhaY
+                +
+                indice * espacamento
 
-            }
+            );
 
         }
     );
@@ -1492,139 +1576,27 @@ function desenharTimestamp(
 
     /*
     =========================================
-    POSIÇÃO
-
-    CANTO INFERIOR DIREITO
-    =========================================
-    */
-
-    const margem =
-        Math.max(
-            12,
-            Math.round(
-                largura * 0.018
-            )
-        );
-
-
-    const larguraCaixa =
-        maiorLargura
-        +
-        paddingX * 2;
-
-
-    const alturaCaixa =
-        (
-            linhas.length
-            *
-            espacamento
-        )
-        +
-        paddingY * 2;
-
-
-    const caixaX =
-        largura
-        -
-        margem
-        -
-        larguraCaixa;
-
-
-    const caixaY =
-        altura
-        -
-        margem
-        -
-        alturaCaixa;
-
-
-    /*
-    =========================================
-    FUNDO SEMITRANSPARENTE
+    2ª PASSAGEM: TEXTO BRANCO
     =========================================
 
-    Melhora a leitura sobre fundos claros
-    e escuros sem cobrir excessivamente a foto.
-    */
-
-    contexto.save();
-
-
-    contexto.fillStyle =
-        "rgba(0, 0, 0, 0.52)";
-
-
-    /*
-        Cantos discretamente arredondados.
-    */
-
-    desenharRetanguloArredondado(
-
-        contexto,
-
-        caixaX,
-        caixaY,
-
-        larguraCaixa,
-        alturaCaixa,
-
-        Math.max(
-            6,
-            tamanhoFonte * 0.25
-        )
-
-    );
-
-
-    contexto.fill();
-
-
-    /*
-    =========================================
-    TEXTO
-    =========================================
-    */
-
-    contexto.fillStyle =
-        "#FFFFFF";
-
-
-    /*
-        Sombra discreta para aumentar
-        a legibilidade.
+    Desenhado sem sombra para manter as
+    letras nítidas sobre o contorno.
     */
 
     contexto.shadowColor =
-        "rgba(0, 0, 0, 0.75)";
+        "transparent";
 
     contexto.shadowBlur =
-        Math.max(
-            1,
-            tamanhoFonte * 0.08
-        );
+        0;
 
     contexto.shadowOffsetX =
-        1;
+        0;
 
     contexto.shadowOffsetY =
-        1;
+        0;
 
-
-    const textoX =
-        largura
-        -
-        margem
-        -
-        paddingX;
-
-
-    let linhaY =
-        caixaY
-        +
-        paddingY
-        +
-        tamanhoFonte;
+    contexto.fillStyle =
+        "#FFFFFF";
 
 
     let coordenadasRect =
@@ -1632,7 +1604,13 @@ function desenharTimestamp(
 
 
     linhas.forEach(
-        function (linha) {
+        function (linha, indice) {
+
+            const linhaY =
+                primeiraLinhaY
+                +
+                indice * espacamento;
+
 
             contexto.fillText(
 
@@ -1647,7 +1625,7 @@ function desenharTimestamp(
 
             /*
             =====================================
-            ÁREA CLICÁVEL DAS COORDENADAS
+            ÁREA DAS COORDENADAS
             =====================================
             */
 
@@ -1683,10 +1661,6 @@ function desenharTimestamp(
                 };
 
             }
-
-
-            linhaY +=
-                espacamento;
 
         }
     );
@@ -1993,98 +1967,5 @@ function adicionarFotografiaAoPDF(
         );
 
     }
-
-}
-
-
-/*
-=========================================
-RETÂNGULO ARREDONDADO
-=========================================
-*/
-
-function desenharRetanguloArredondado(
-    contexto,
-    x,
-    y,
-    largura,
-    altura,
-    raio
-) {
-
-    const r =
-        Math.min(
-            raio,
-            largura / 2,
-            altura / 2
-        );
-
-
-    contexto.beginPath();
-
-
-    contexto.moveTo(
-        x + r,
-        y
-    );
-
-
-    contexto.lineTo(
-        x + largura - r,
-        y
-    );
-
-
-    contexto.quadraticCurveTo(
-        x + largura,
-        y,
-        x + largura,
-        y + r
-    );
-
-
-    contexto.lineTo(
-        x + largura,
-        y + altura - r
-    );
-
-
-    contexto.quadraticCurveTo(
-        x + largura,
-        y + altura,
-        x + largura - r,
-        y + altura
-    );
-
-
-    contexto.lineTo(
-        x + r,
-        y + altura
-    );
-
-
-    contexto.quadraticCurveTo(
-        x,
-        y + altura,
-        x,
-        y + altura - r
-    );
-
-
-    contexto.lineTo(
-        x,
-        y + r
-    );
-
-
-    contexto.quadraticCurveTo(
-        x,
-        y,
-        x + r,
-        y
-    );
-
-
-    contexto.closePath();
 
 }
