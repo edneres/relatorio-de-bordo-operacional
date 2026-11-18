@@ -551,7 +551,7 @@
             
             <!-- =========================================
                 CARACTERÍSTICAS DA EQUIPE
-                EXCLUSIVO PARA MANUTENÇÃO
+                EXPANSÃO E MANUTENÇÃO
             ========================================= -->
 
             <div
@@ -569,16 +569,31 @@
                             <span class="obrigatorio">*</span>
                         </label>
 
-                        <span id="contador-prefixo-equipe">0/15</span>
+                        <span id="contador-prefixo-equipe">0/12</span>
                     </div>
+
+                    <!--
+                        Sem maxlength: a máscara do app.js
+                        limita a 12 caracteres e permite
+                        colar o prefixo em outros formatos.
+                    -->
 
                     <input
                         type="text"
                         id="prefixo-equipe"
-                        maxlength="15"
                         autocomplete="off"
+                        autocapitalize="characters"
+                        spellcheck="false"
+                        placeholder="Ex: MA-TMO-E001M"
                         disabled
                     >
+
+                    <span
+                        id="erro-prefixo-equipe"
+                        class="mensagem-erro-campo oculto"
+                    >
+                        Formato esperado: MA-TMO-E001M
+                    </span>
 
                 </div>
 
@@ -596,10 +611,19 @@
                     <input
                         type="text"
                         id="placa-viatura"
-                        maxlength="7"
                         autocomplete="off"
+                        autocapitalize="characters"
+                        spellcheck="false"
+                        placeholder="AAA1A11 ou AAA1111"
                         disabled
                     >
+
+                    <span
+                        id="erro-placa-viatura"
+                        class="mensagem-erro-campo oculto"
+                    >
+                        Placa inválida. Use AAA1A11 ou AAA1111.
+                    </span>
 
                 </div>
 

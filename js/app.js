@@ -105,6 +105,192 @@ function atualizarCaracteristicasEquipe() {
 }
 
 
+/*
+=========================================
+MÁSCARA DO PREFIXO DA EQUIPE
+=========================================
+
+Formato: MA-TMO-E001M
+
+- 2 letras
+- 3 letras
+- 5 letras ou números
+
+Os hífens são inseridos automaticamente.
+
+completarHifen = false ao apagar, para
+que o Backspace remova o hífen.
+=========================================
+*/
+
+function aplicarMascaraPrefixoEquipe(
+    valor,
+    completarHifen = true
+) {
+
+    const caracteres =
+        String(valor || "")
+            .toLocaleUpperCase("pt-BR")
+            .normalize("NFD")
+            .replace(/[̀-ͯ]/g, "")
+            .replace(/[^A-Z0-9]/g, "");
+
+
+    /*
+    Aceita cada caractere somente se ele
+    for válido para a sua posição.
+    */
+
+    let limpo = "";
+
+    for (const caractere of caracteres) {
+
+        const posicao =
+            limpo.length;
+
+        if (posicao >= 10) {
+
+            break;
+
+        }
+
+        const ehLetra =
+            /[A-Z]/.test(caractere);
+
+        if (
+            posicao < 5 &&
+            !ehLetra
+        ) {
+
+            continue;
+
+        }
+
+        limpo += caractere;
+
+    }
+
+
+    let resultado =
+        limpo.slice(0, 2);
+
+
+    if (
+        limpo.length > 2 ||
+        (limpo.length === 2 && completarHifen)
+    ) {
+
+        resultado +=
+            "-" + limpo.slice(2, 5);
+
+    }
+
+
+    if (
+        limpo.length > 5 ||
+        (limpo.length === 5 && completarHifen)
+    ) {
+
+        resultado +=
+            "-" + limpo.slice(5, 10);
+
+    }
+
+
+    return resultado;
+
+}
+
+
+/*
+=========================================
+MÁSCARA DA PLACA
+=========================================
+
+Mercosul: AAA0A00
+Antiga:   AAA0000
+
+Posições:
+1 a 3 → letras
+4     → número
+5     → letra ou número
+6 e 7 → números
+=========================================
+*/
+
+function aplicarMascaraPlaca(valor) {
+
+    const caracteres =
+        String(valor || "")
+            .toLocaleUpperCase("pt-BR")
+            .normalize("NFD")
+            .replace(/[̀-ͯ]/g, "")
+            .replace(/[^A-Z0-9]/g, "");
+
+
+    let resultado = "";
+
+    for (const caractere of caracteres) {
+
+        const posicao =
+            resultado.length;
+
+        if (posicao >= 7) {
+
+            break;
+
+        }
+
+        const ehLetra =
+            /[A-Z]/.test(caractere);
+
+        const ehNumero =
+            /[0-9]/.test(caractere);
+
+        const valido =
+            (posicao <= 2 && ehLetra) ||
+            (posicao === 3 && ehNumero) ||
+            (posicao === 4) ||
+            (posicao >= 5 && ehNumero);
+
+        if (valido) {
+
+            resultado += caractere;
+
+        }
+
+    }
+
+
+    return resultado;
+
+}
+
+
+/*
+=========================================
+VALIDAÇÕES DE FORMATO
+=========================================
+*/
+
+function prefixoEquipeValido(valor) {
+
+    return /^[A-Z]{2}-[A-Z]{3}-[A-Z0-9]{5}$/.test(
+        String(valor || "")
+    );
+
+}
+
+
+function placaViaturaValida(valor) {
+
+    return /^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/.test(
+        String(valor || "")
+    );
+
+}
+
+
 
 
 /*
@@ -710,7 +896,7 @@ document.addEventListener(
         /*
         =========================================
         CARACTERÍSTICAS DA EQUIPE
-        PADRONIZAÇÃO DOS CAMPOS
+        MÁSCARAS, CONTADORES E VALIDAÇÃO
         =========================================
         */
 
@@ -725,11 +911,10 @@ document.addEventListener(
             );
 
 
-        
         /*
-        =========================================
-        LETRAS MAIÚSCULAS E CONTADORES
-        =========================================
+        -----------------------------------------
+        CONTADORES
+        -----------------------------------------
         */
 
         function atualizarContadoresEquipe() {
@@ -746,7 +931,7 @@ document.addEventListener(
 
             if (campoPrefixoEquipe && contadorPrefixo) {
                 contadorPrefixo.textContent =
-                    `${campoPrefixoEquipe.value.length}/15`;
+                    `${campoPrefixoEquipe.value.length}/12`;
             }
 
             if (campoPlacaViatura && contadorPlaca) {
@@ -757,31 +942,183 @@ document.addEventListener(
         }
 
 
-        [campoPrefixoEquipe, campoPlacaViatura].forEach(
-            function (campo) {
+        /*
+        -----------------------------------------
+        AVISO DE FORMATO INVÁLIDO
+        -----------------------------------------
 
-                if (!campo) {
-                    return;
-                }
+        Exibido somente se o campo tiver
+        conteúdo e estiver fora do formato.
+        */
 
-                campo.addEventListener(
-                    "input",
-                    function () {
+        function atualizarErroCampoEquipe(
+            campo,
+            valido
+        ) {
 
-                        this.value =
-                            this.value.toLocaleUpperCase("pt-BR");
+            const mensagem =
+                document.getElementById(
+                    "erro-" + campo.id
+                );
 
-                        atualizarContadoresEquipe();
-                        atualizarValidacaoRegistro();
-                        atualizarBotoes();
-                        atualizarPreviaNomeArquivo();
-                        salvarDadosRegistro();
+            const exibirErro =
+                campo.value.length > 0 &&
+                !valido;
 
-                    }
+            campo.classList.toggle(
+                "campo-invalido",
+                exibirErro
+            );
+
+            if (mensagem) {
+
+                mensagem.classList.toggle(
+                    "oculto",
+                    !exibirErro
                 );
 
             }
-        );
+
+        }
+
+
+        /*
+        -----------------------------------------
+        APÓS QUALQUER ALTERAÇÃO
+        -----------------------------------------
+        */
+
+        function aposAlterarCampoEquipe() {
+
+            atualizarContadoresEquipe();
+            atualizarValidacaoRegistro();
+            atualizarBotoes();
+            atualizarPreviaNomeArquivo();
+            salvarDadosRegistro();
+
+        }
+
+
+        /*
+        -----------------------------------------
+        PREFIXO DA EQUIPE
+        -----------------------------------------
+        */
+
+        if (campoPrefixoEquipe) {
+
+            campoPrefixoEquipe.addEventListener(
+                "input",
+                function (event) {
+
+                    /*
+                    Ao apagar, o hífen automático
+                    não é recolocado.
+                    */
+
+                    const apagando =
+                        String(
+                            event.inputType || ""
+                        ).startsWith("delete");
+
+                    this.value =
+                        aplicarMascaraPrefixoEquipe(
+                            this.value,
+                            !apagando
+                        );
+
+                    /*
+                    Remove o aviso assim que o
+                    formato fica correto.
+                    */
+
+                    if (
+                        prefixoEquipeValido(
+                            this.value
+                        )
+                    ) {
+
+                        atualizarErroCampoEquipe(
+                            this,
+                            true
+                        );
+
+                    }
+
+                    aposAlterarCampoEquipe();
+
+                }
+            );
+
+
+            campoPrefixoEquipe.addEventListener(
+                "blur",
+                function () {
+
+                    atualizarErroCampoEquipe(
+                        this,
+                        prefixoEquipeValido(
+                            this.value
+                        )
+                    );
+
+                }
+            );
+
+        }
+
+
+        /*
+        -----------------------------------------
+        PLACA DA VIATURA
+        -----------------------------------------
+        */
+
+        if (campoPlacaViatura) {
+
+            campoPlacaViatura.addEventListener(
+                "input",
+                function () {
+
+                    this.value =
+                        aplicarMascaraPlaca(
+                            this.value
+                        );
+
+                    if (
+                        placaViaturaValida(
+                            this.value
+                        )
+                    ) {
+
+                        atualizarErroCampoEquipe(
+                            this,
+                            true
+                        );
+
+                    }
+
+                    aposAlterarCampoEquipe();
+
+                }
+            );
+
+
+            campoPlacaViatura.addEventListener(
+                "blur",
+                function () {
+
+                    atualizarErroCampoEquipe(
+                        this,
+                        placaViaturaValida(
+                            this.value
+                        )
+                    );
+
+                }
+            );
+
+        }
 
 
         /*
@@ -1440,6 +1777,11 @@ function atualizarValidacaoRegistro() {
     =========================================
     VALIDAÇÃO DAS CARACTERÍSTICAS DA EQUIPE
     =========================================
+
+    Exige o formato completo:
+
+    Prefixo: MA-TMO-E001M
+    Placa:   AAA0A00 ou AAA0000
     */
 
     const campoPrefixo =
@@ -1456,9 +1798,13 @@ function atualizarValidacaoRegistro() {
         !exigeCaracteristicasEquipe
         ||
         (
-            (campoPrefixo?.value.trim().length || 0) > 0
+            prefixoEquipeValido(
+                campoPrefixo?.value || ""
+            )
             &&
-            (campoPlaca?.value.trim().length || 0) > 0
+            placaViaturaValida(
+                campoPlaca?.value || ""
+            )
         );
 
     /*
@@ -2088,35 +2434,40 @@ async function restaurarDadosRegistro() {
     }
 
 
-/*
-=========================================
-RESTAURA CARACTERÍSTICAS DA EQUIPE
-=========================================
-*/
+    /*
+    =========================================
+    RESTAURA CARACTERÍSTICAS DA EQUIPE
+    =========================================
 
-const campoPrefixoRestauracao =
-    document.getElementById("prefixo-equipe");
+    A máscara também corrige valores salvos
+    em versões anteriores (sem hífens).
+    */
 
-const campoPlacaRestauracao =
-    document.getElementById("placa-viatura");
+    const campoPrefixoRestauracao =
+        document.getElementById("prefixo-equipe");
 
-if (campoPrefixoRestauracao) {
+    const campoPlacaRestauracao =
+        document.getElementById("placa-viatura");
 
-    campoPrefixoRestauracao.value =
-        String(registro.prefixoEquipe || "")
-            .toUpperCase()
-            .slice(0, 15);
 
-}
+    if (campoPrefixoRestauracao) {
 
-if (campoPlacaRestauracao) {
+        campoPrefixoRestauracao.value =
+            aplicarMascaraPrefixoEquipe(
+                registro.prefixoEquipe || "",
+                false
+            );
 
-    campoPlacaRestauracao.value =
-        String(registro.placaViatura || "")
-            .toUpperCase()
-            .slice(0, 7);
+    }
 
-}
+    if (campoPlacaRestauracao) {
+
+        campoPlacaRestauracao.value =
+            aplicarMascaraPlaca(
+                registro.placaViatura || ""
+            );
+
+    }
 
 
     /*
@@ -2138,7 +2489,7 @@ if (campoPlacaRestauracao) {
     if (contadorPrefixo) {
 
         contadorPrefixo.textContent =
-            `${campoPrefixoRestauracao?.value.length || 0}/15`;
+            `${campoPrefixoRestauracao?.value.length || 0}/12`;
 
     }
 
@@ -4547,13 +4898,13 @@ async function limparRegistroAtual() {
 
     /*
     =========================================
-    REINICIA CONTADORES
+    REINICIA CONTADORES E AVISOS
     =========================================
     */
 
     if (contadorPrefixoEquipe) {
 
-        contadorPrefixoEquipe.textContent = "0/15";
+        contadorPrefixoEquipe.textContent = "0/12";
 
     }
 
@@ -4562,6 +4913,39 @@ async function limparRegistroAtual() {
         contadorPlacaViatura.textContent = "0/7";
 
     }
+
+
+    [
+        campoPrefixoEquipe,
+        campoPlacaViatura
+    ].forEach(
+        function (campo) {
+
+            if (campo) {
+
+                campo.classList.remove(
+                    "campo-invalido"
+                );
+
+            }
+
+        }
+    );
+
+
+    [
+        "erro-prefixo-equipe",
+        "erro-placa-viatura"
+    ].forEach(
+        function (id) {
+
+            document
+                .getElementById(id)
+                ?.classList
+                .add("oculto");
+
+        }
+    );
 
 
     /*

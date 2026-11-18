@@ -1668,6 +1668,34 @@ TELAS DE CELULAR
 
 
 
+/* =========================================
+   CARACTERÍSTICAS DA EQUIPE
+   EXEMPLO E VALIDAÇÃO
+========================================= */
+
+.caracteristicas-equipe input::placeholder {
+    color: #94a3b8;
+
+    text-transform: none;
+}
+
+
+.caracteristicas-equipe input.campo-invalido {
+    border-color: #dc2626;
+
+    box-shadow:
+        0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+
+.mensagem-erro-campo {
+    color: #dc2626;
+
+    font-size: 12px;
+    font-weight: 500;
+}
+
+
 /*
 =========================================
 OCULTAR RELATÓRIOS PENDENTES
